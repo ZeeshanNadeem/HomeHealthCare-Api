@@ -1,5 +1,6 @@
 const express = require("express");
 const { Service, validateService } = require("../models/servicesSchema");
+const { Organization } = require("../models/organizationSchema");
 const router = express.Router();
 const mongoose = require("mongoose");
 
@@ -35,9 +36,15 @@ router.post("/", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
+  const organization = await Organization.findById(
+    req.body.serviceOrgranization
+  );
+  if (!organization)
+    return res.status(400).send("Organization Type doesn't exist");
+
   const service = new Service({
     serviceName: req.body.serviceName,
-    serviceOrgranization: req.body.serviceOrgranization,
+    serviceOrgranization: organization,
     servicePrice: req.body.servicePrice,
   });
 

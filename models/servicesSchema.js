@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
+const { organizationSchema } = require("./organizationSchema");
 const servicesSchema = new mongoose.Schema({
   serviceName: {
     type: String,
     required: true,
   },
   serviceOrgranization: {
-    type: String,
+    type: organizationSchema,
     required: true,
   },
   servicePrice: {
@@ -20,7 +21,7 @@ const Service = mongoose.model("services", servicesSchema);
 function validateService(name) {
   const schema = Joi.object({
     serviceName: Joi.string().required(),
-    serviceOrgranization: Joi.string().required(),
+    serviceOrgranization: Joi.objectId().required(),
     servicePrice: Joi.number().required(),
   });
   return schema.validate(name);
