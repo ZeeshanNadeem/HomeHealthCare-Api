@@ -87,6 +87,7 @@ function paginatedResults(model) {
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
     const searchedValue = req.query.searchedString;
+    const organization = req.query.organization;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
@@ -113,7 +114,17 @@ function paginatedResults(model) {
     //   m.title.toLowerCase().startsWith(query.toLowerCase())
     // );
     try {
-      if (searchedValue) {
+      if (organization) {
+        results.results = await model
+          // .startsWith(searchedValue)
+          .find({
+            "serviceOrgranization._id": organization,
+          });
+
+        // .limit(limit)
+        // .skip(startIndex)
+        // .exec();
+      } else if (searchedValue) {
         results.results = await model
           // .startsWith(searchedValue)
           .find({ serviceName: searchedValue })
