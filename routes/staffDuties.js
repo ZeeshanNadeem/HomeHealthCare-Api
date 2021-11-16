@@ -1,12 +1,18 @@
 const express = require("express");
+
+const { Organization } = require("../models/organizationSchema");
+const router = express.Router();
+const mongoose = require("mongoose");
+const { Service } = require("../models/servicesSchema");
 const {
   StaffDuties,
   validateStaffDuty,
 } = require("../models/staffDutiesSchema");
-const router = express.Router();
-const mongoose = require("mongoose");
-
 router.get("/", async (req, res) => {
+  if (req.query.day) {
+    const staffDuties = await StaffDuties.find({ day: req.query.day });
+    res.send(staffDuties);
+  }
   const staffDuties = await StaffDuties.find();
 
   res.send(staffDuties);
@@ -23,13 +29,24 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  console.log(req.body);
   const { error } = validateStaffDuty(req.body);
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
+  const organization = await Organization.findById(
+    req.body.serviceOrganization
+  );
+  if (!organization)
+    return res.status(404).send("Organzation not found with the given ID");
+  console.log("Organization :", organization);
+  const service = await Service.findById(req.body.serviceID);
+  if (!service)
+    return res.status(404).send("Service not found with the given ID");
 
   const staffDuty = new StaffDuties({
-    serviceID: req.body.serviceID,
+    service: service,
+    serviceOrganization: organization,
     Day: req.body.Day,
     From: req.body.From,
     To: req.body.To,
@@ -39,7 +56,6 @@ router.post("/", async (req, res) => {
     const staffDutyGot = await staffDuty.save();
     res.send(staffDutyGot);
   } catch (ex) {
-    console.log("catch exp");
     return res.status(400).send(ex.details[0].message);
   }
 });
@@ -53,11 +69,21 @@ router.put("/:id", async (req, res) => {
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
+  const organization = await Organization.findById(
+    req.body.serviceOrgranization
+  );
+  if (!organization)
+    return res.status(404).send("Organzation not found with the given ID");
+
+  const service = await Service.findById(req.body.serviceID);
+  if (!service)
+    return res.status(404).send("Service not found with the given ID");
 
   const staffDuty = await StaffDuties.findByIdAndUpdate(
     req.params.id,
     {
-      serviceID: req.body.serviceID,
+      service: service,
+      serviceOrganization: organization,
       Day: req.body.Day,
       From: req.body.From,
       To: req.body.To,
