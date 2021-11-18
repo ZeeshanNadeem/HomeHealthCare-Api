@@ -8,6 +8,7 @@ const qualification = require("./routes/qualification");
 const organization = require("./routes/organization");
 const staffType = require("./routes/staffType");
 const staffDuties = require("./routes/staffDuties");
+const bookedSlot = require("./routes/bookedSlots");
 const app = express();
 
 app.use((req, res, next) => {
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use("/api/staff", staff);
 app.use("/api/services", services);
+app.use("/api/bookedSlots", bookedSlot);
 app.use("/api/qualification", qualification);
 app.use("/api/user/requests", userRequests);
 app.use("/api/organization", organization);
