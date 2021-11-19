@@ -1,23 +1,24 @@
 const express = require("express");
 
-const { Service } = require("../models/servicesSchema");
 const {
-  userRequests,
+  UserRequest,
   validateUserRequest,
-} = require("../models/userRequestsSchema");
+} = require("../models/UserRequestSchema");
+
+const { Organization } = require("../models/organizationSchema");
+const { Service } = require("../models/servicesSchema");
 
 const router = express.Router();
 const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
-  const requests = await userRequests.find().sort("fullName");
+  const requests = await UserRequest.find();
   res.send(requests);
 });
-
 router.get("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Request not found with the given ID");
-  const requests = await userRequests.findById(req.params.id);
+  const requests = await UserRequest.findById(req.params.id);
   if (!requests)
     return res.status(404).send("Request not found with the given ID");
 
@@ -27,7 +28,7 @@ router.get("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Request not found with the given ID ");
-  const requests = await userRequests.findByIdAndRemove(req.params.id);
+  const requests = await UserRequest.findByIdAndRemove(req.params.id);
   if (!requests)
     return res.status(404).send("Request not found with the given ID");
   res.send(requests);
@@ -35,22 +36,31 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const { error } = validateUserRequest(req.body);
+
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
 
-  const service = await Service.findById(req.body.requestID);
+  const organization = await Organization.findById(req.body.OrganizationID);
+  if (!organization)
+    return res.status(400).send("Organization with the given ID doesn't exist");
+
+  const service = await Service.findById(req.body.ServiceID);
   if (!service)
-    return res.status(400).send("Invalid Request! The service doesn't exist");
-  const requests = new userRequests({
-    fullName: req.body.fullName,
-    requestType: { _id: service._id, name: service.name },
-    phone: req.body.phone,
-    address: req.body.address,
+    return res.status(400).send("Service with the given ID doesn't exist");
+
+  const request = new UserRequest({
+    Organization: organization,
+    Service: service,
+    Schedule: req.body.Schedule,
+    Time: req.body.Time,
+    OnlyOnce: req.body.OnlyOnce,
+    Address: req.body.Address,
+    PhoneNo: req.body.PhoneNo,
   });
 
   try {
-    const requestSaved = await requests.save();
+    const requestSaved = await request.save();
     res.send(requestSaved);
   } catch (ex) {
     return res.status(400).send(ex.details[0].message);
@@ -65,16 +75,24 @@ router.put("/:id", async (req, res) => {
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
-  const service = Service.findById(req.body.requestID);
+
+  const organization = await Organization.findById(req.body.OrganizationID);
+  if (!organization)
+    return res.status(400).send("Organization with the given ID doesn't exist");
+
+  const service = await Service.findById(req.body.ServiceID);
   if (!service)
-    return res.status(400).send("Invalid Request! The service doesn't exist");
-  const request = await userRequests.findByIdAndUpdate(
+    return res.status(400).send("Service with the given ID doesn't exist");
+
+  const request = await UserRequest.findByIdAndUpdate(
     req.params.id,
     {
-      fullName: req.body.fullName,
-      requestType: req.body.requestID,
-      phone: req.body.phone,
-      address: req.body.address,
+      Organization: organization,
+      Service: service,
+      Schedule: req.body.Schedule,
+      OnlyOnce: req.body.OnlyOnce,
+      Address: req.body.Address,
+      PhoneNo: req.body.PhoneNo,
     },
     {
       new: true,
