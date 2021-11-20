@@ -47,3 +47,4 @@ function validateStaff(Staff) {
 
 module.exports.Staff = Staff;
 module.exports.validateStaff = validateStaff;
+module.exports.staffSchema = staffSchema;

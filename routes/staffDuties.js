@@ -8,6 +8,8 @@ const {
   StaffDuties,
   validateStaffDuty,
 } = require("../models/staffDutiesSchema");
+const { Staff } = require("./staffSchema");
+
 router.get("/", async (req, res) => {
   if (req.query.day) {
     const staffDuties = await StaffDuties.find({ day: req.query.day });
@@ -34,6 +36,13 @@ router.post("/", async (req, res) => {
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
+
+  const staffMember = await Staff.findById(req.body.staffMemberId);
+  if (!staffMember)
+    return res
+      .status(404)
+      .send("The Staff member doesn't exist not found with the given ID");
+
   const organization = await Organization.findById(
     req.body.serviceOrganization
   );
@@ -45,6 +54,7 @@ router.post("/", async (req, res) => {
     return res.status(404).send("Service not found with the given ID");
 
   const staffDuty = new StaffDuties({
+    staffMemberAssigned: staffMember,
     service: service,
     serviceOrganization: organization,
     Day: req.body.Day,
@@ -69,6 +79,12 @@ router.put("/:id", async (req, res) => {
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
+  const staffMember = await Staff.findById(req.body.staffMemberId);
+  if (!staffMember)
+    return res
+      .status(404)
+      .send("Staff Member doesn't exist not found with the given ID");
+
   const organization = await Organization.findById(
     req.body.serviceOrgranization
   );
@@ -82,6 +98,7 @@ router.put("/:id", async (req, res) => {
   const staffDuty = await StaffDuties.findByIdAndUpdate(
     req.params.id,
     {
+      staffMemberAssigned: staffMember,
       service: service,
       serviceOrganization: organization,
       Day: req.body.Day,
