@@ -1,5 +1,5 @@
 const express = require("express");
-
+const { Staff } = require("../models/staffSchema");
 const {
   UserRequest,
   validateUserRequest,
@@ -41,6 +41,12 @@ router.post("/", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
+  const staffMember = await Staff.findById(req.body.staffMemberId);
+  if (!staffMember)
+    return res
+      .status(404)
+      .send("The Staff member doesn't exist not found with the given ID");
+
   const organization = await Organization.findById(req.body.OrganizationID);
   if (!organization)
     return res.status(400).send("Organization with the given ID doesn't exist");
@@ -50,6 +56,7 @@ router.post("/", async (req, res) => {
     return res.status(400).send("Service with the given ID doesn't exist");
 
   const request = new UserRequest({
+    staffMemberAssigned: staffMember,
     Organization: organization,
     Service: service,
     Schedule: req.body.Schedule,
@@ -76,6 +83,12 @@ router.put("/:id", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
+  const staffMember = await Staff.findById(req.body.staffMemberId);
+  if (!staffMember)
+    return res
+      .status(404)
+      .send("Staff Member doesn't exist not found with the given ID");
+
   const organization = await Organization.findById(req.body.OrganizationID);
   if (!organization)
     return res.status(400).send("Organization with the given ID doesn't exist");
@@ -87,6 +100,7 @@ router.put("/:id", async (req, res) => {
   const request = await UserRequest.findByIdAndUpdate(
     req.params.id,
     {
+      staffMemberAssigned: staffMember,
       Organization: organization,
       Service: service,
       Schedule: req.body.Schedule,

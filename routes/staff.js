@@ -57,6 +57,8 @@ router.post("/", async (req, res) => {
       _id: qualification._id,
       name: qualification.name,
     },
+    availabilityForm: req.body.availabilityForm,
+    availabilityTo: req.body.availabilityTo,
     email: req.body.email,
     phone: req.body.phone,
   });
@@ -97,6 +99,8 @@ router.put("/:id", async (req, res) => {
       staffType: staffType,
 
       qualification: qualification,
+      availabilityFrom: req.body.availabilityFrom,
+      availabilityTo: req.body.availabilityTo,
 
       email: req.body.email,
       phone: req.body.phone,

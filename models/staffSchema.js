@@ -16,15 +16,22 @@ const staffSchema = new mongoose.Schema({
     type: staffTypeSchema,
     required: true,
   },
-
   qualification: {
     type: qualificationSchema,
     required: true,
   },
-  email: {
+  availabilityForm: {
     type: String,
     required: true,
   },
+  availabilityTo: {
+    type: String,
+    required: true,
+  },
+  // email: {
+  //   type: String,
+  //   required: true,
+  // },
   phone: {
     type: String,
     required: true,
@@ -39,7 +46,9 @@ function validateStaff(Staff) {
     dateOfBirth: Joi.string().required(),
     staffTypeID: Joi.objectId().required(),
     qualificationID: Joi.objectId().required(),
-    email: Joi.string().required(),
+    availabilityForm: Joi.string().required(),
+    availabilityTo: Joi.string().required(),
+    // email: Joi.string().required(),
     phone: Joi.string().required(),
   });
   return schema.validate(Staff);

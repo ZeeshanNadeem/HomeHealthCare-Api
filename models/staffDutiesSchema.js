@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 const { organizationSchema } = require("./organizationSchema");
 const { servicesSchema } = require("./servicesSchema");
-const { staffSchema } = require("./staffSchema");
+// const { staffSchema } = require("./staffSchema");
 const Joi = require("joi");
 
 const staffDuttiesSchema = new mongoose.Schema({
-  staffMemberAssigned: {
-    type: staffSchema,
-    required: true,
-  },
+  // staffMemberAssigned: {
+  //   type: staffSchema,
+  //   required: true,
+  // },
   service: {
     type: servicesSchema,
     required: true,
@@ -35,7 +35,7 @@ const StaffDuties = mongoose.model("StaffDuties", staffDuttiesSchema);
 
 function validateStaffDuty(name) {
   const schema = Joi.object({
-    staffMemberId: Joi.objectId().required(),
+    // staffMemberId: Joi.objectId().required(),
     serviceID: Joi.objectId().required(),
     serviceOrganization: Joi.objectId().required(),
     Day: Joi.string().required(),

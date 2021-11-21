@@ -1,8 +1,13 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
+const { staffSchema } = require("./staffSchema");
 const { organizationSchema } = require("./organizationSchema");
 const { servicesSchema } = require("./servicesSchema");
 const userRequestSchema = new mongoose.Schema({
+  staffMemberAssigned: {
+    type: staffSchema,
+    required: true,
+  },
   Organization: {
     type: organizationSchema,
     required: true,
@@ -37,8 +42,8 @@ const UserRequest = mongoose.model("UserRequests", userRequestSchema);
 
 function validateUserRequest(name) {
   const schema = Joi.object({
+    staffMemberId: Joi.objectId().required(),
     OrganizationID: Joi.objectId().required(),
-
     Time: Joi.string().required(),
     ServiceID: Joi.objectId().required(),
     Schedule: Joi.string().required(),

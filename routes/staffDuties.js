@@ -8,7 +8,7 @@ const {
   StaffDuties,
   validateStaffDuty,
 } = require("../models/staffDutiesSchema");
-const { Staff } = require("./staffSchema");
+// const { Staff } = require("../models/staffSchema");
 
 router.get("/", async (req, res) => {
   if (req.query.day) {
