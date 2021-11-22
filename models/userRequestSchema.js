@@ -20,12 +20,16 @@ const userRequestSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  Time: {
+  ServiceNeededFrom: {
+    type: String,
+    required: true,
+  },
+  ServiceNeededTo: {
     type: String,
     required: true,
   },
   OnlyOnce: {
-    type: Boolean,
+    type: String,
     required: true,
   },
   Address: {
@@ -42,9 +46,10 @@ const UserRequest = mongoose.model("UserRequests", userRequestSchema);
 
 function validateUserRequest(name) {
   const schema = Joi.object({
-    staffMemberId: Joi.objectId().required(),
+    staffMemberID: Joi.objectId().required(),
     OrganizationID: Joi.objectId().required(),
-    Time: Joi.string().required(),
+    ServiceNeededFrom: Joi.string().required(),
+    ServiceNeededTo: Joi.string().required(),
     ServiceID: Joi.objectId().required(),
     Schedule: Joi.string().required(),
     OnlyOnce: Joi.boolean().required(),

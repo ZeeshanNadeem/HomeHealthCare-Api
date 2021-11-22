@@ -41,7 +41,7 @@ router.post("/", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
-  const staffMember = await Staff.findById(req.body.staffMemberId);
+  const staffMember = await Staff.findById(req.body.staffMemberID);
   if (!staffMember)
     return res
       .status(404)
@@ -60,7 +60,8 @@ router.post("/", async (req, res) => {
     Organization: organization,
     Service: service,
     Schedule: req.body.Schedule,
-    Time: req.body.Time,
+    ServiceNeededFrom: req.body.ServiceNeededFrom,
+    ServiceNeededTo: req.body.ServiceNeededTo,
     OnlyOnce: req.body.OnlyOnce,
     Address: req.body.Address,
     PhoneNo: req.body.PhoneNo,
@@ -83,7 +84,7 @@ router.put("/:id", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
-  const staffMember = await Staff.findById(req.body.staffMemberId);
+  const staffMember = await Staff.findById(req.body.staffMemberID);
   if (!staffMember)
     return res
       .status(404)
@@ -104,6 +105,8 @@ router.put("/:id", async (req, res) => {
       Organization: organization,
       Service: service,
       Schedule: req.body.Schedule,
+      ServiceNeededFrom: req.body.ServiceNeededFrom,
+      ServiceNeededTo: req.body.ServiceNeededTo,
       OnlyOnce: req.body.OnlyOnce,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
