@@ -20,11 +20,19 @@ const staffSchema = new mongoose.Schema({
     type: qualificationSchema,
     required: true,
   },
-  availabilityForm: {
+  availabilityFrom: {
     type: String,
     required: true,
   },
   availabilityTo: {
+    type: String,
+    required: true,
+  },
+  availabileDayFrom: {
+    type: String,
+    required: true,
+  },
+  availabileDayTo: {
     type: String,
     required: true,
   },
@@ -46,8 +54,10 @@ function validateStaff(Staff) {
     dateOfBirth: Joi.string().required(),
     staffTypeID: Joi.objectId().required(),
     qualificationID: Joi.objectId().required(),
-    availabilityForm: Joi.string().required(),
+    availabilityFrom: Joi.string().required(),
     availabilityTo: Joi.string().required(),
+    availabileDayFrom: Joi.string().required(),
+    availabileDayTo: Joi.string().required(),
     // email: Joi.string().required(),
     phone: Joi.string().required(),
   });
