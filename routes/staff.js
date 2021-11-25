@@ -9,6 +9,18 @@ const mongoose = require("mongoose");
 router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
   // res.send(staff);
+
+  if (req.query.day && req.query.service) {
+    if (req.query.day.toUpperCase() === "SUNDAY") {
+      res.send("Sunday's service not available");
+    }
+    const staff = await Staff.find({
+      "staffType._id": req.query.service,
+      organization: "KRL",
+    });
+    res.send(staff);
+  }
+
   res.json(res.paginatedResults);
 });
 

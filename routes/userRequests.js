@@ -55,13 +55,18 @@ router.post("/", async (req, res) => {
   if (!service)
     return res.status(400).send("Service with the given ID doesn't exist");
 
+  const myArray = req.body.ServiceNeededFrom.split(":");
+  const sum = parseInt(myArray[0]) + 1;
+  const ServiceNeededTo_ = sum + ":00";
+
   const request = new UserRequest({
+    fullName: req.body.fullName,
     staffMemberAssigned: staffMember,
     Organization: organization,
     Service: service,
     Schedule: req.body.Schedule,
     ServiceNeededFrom: req.body.ServiceNeededFrom,
-    ServiceNeededTo: req.body.ServiceNeededTo,
+    ServiceNeededTo: ServiceNeededTo_,
     OnlyOnce: req.body.OnlyOnce,
     Address: req.body.Address,
     PhoneNo: req.body.PhoneNo,
