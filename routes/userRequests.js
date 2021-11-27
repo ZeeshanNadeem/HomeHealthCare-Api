@@ -38,6 +38,7 @@ router.post("/", async (req, res) => {
   const { error } = validateUserRequest(req.body);
 
   if (error) {
+    console.log("ERROR ::::", error);
     return res.status(400).send(error.details[0].message);
   }
 
@@ -67,7 +68,7 @@ router.post("/", async (req, res) => {
     Schedule: req.body.Schedule,
     ServiceNeededFrom: req.body.ServiceNeededFrom,
     ServiceNeededTo: ServiceNeededTo_,
-    OnlyOnce: req.body.OnlyOnce,
+    Recursive: req.body.Recursive,
     Address: req.body.Address,
     PhoneNo: req.body.PhoneNo,
   });
@@ -76,6 +77,7 @@ router.post("/", async (req, res) => {
     const requestSaved = await request.save();
     res.send(requestSaved);
   } catch (ex) {
+    console.log("EX:::", ex);
     return res.status(400).send(ex.details[0].message);
   }
 });

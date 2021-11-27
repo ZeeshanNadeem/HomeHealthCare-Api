@@ -3,6 +3,7 @@ const Joi = require("joi");
 const { staffSchema } = require("./staffSchema");
 const { organizationSchema } = require("./organizationSchema");
 const { servicesSchema } = require("./servicesSchema");
+const { boolean } = require("joi");
 const userRequestSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -32,8 +33,8 @@ const userRequestSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  OnlyOnce: {
-    type: String,
+  Recursive: {
+    type: Boolean,
     required: true,
   },
   Address: {
@@ -57,7 +58,7 @@ function validateUserRequest(name) {
     // ServiceNeededTo: Joi.string().required(),
     ServiceID: Joi.objectId().required(),
     Schedule: Joi.string().required(),
-    OnlyOnce: Joi.boolean().required(),
+    Recursive: Joi.boolean().required(),
     Address: Joi.string().required(),
     PhoneNo: Joi.number().required(),
   });
