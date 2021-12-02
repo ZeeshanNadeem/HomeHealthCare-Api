@@ -1,3 +1,4 @@
+const config = require("config");
 const express = require("express");
 const mongoose = require("mongoose");
 // const doctors = require("./routes/doctors");
@@ -9,8 +10,14 @@ const staffType = require("./routes/staffType");
 const staffDuties = require("./routes/staffDuties");
 const bookedSlot = require("./routes/bookedSlots");
 const userRequests = require("./routes/userRequests");
+const user = require("./routes/user");
+const auth = require("./routes/auth");
 const app = express();
 
+if (!config.get("jwtPrivateKey")) {
+  console.log("FATAL ERROR: jwtPrivateKey is not defined");
+  process.exit(1);
+}
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "*");
@@ -31,6 +38,8 @@ app.use("/api/organization", organization);
 app.use("/api/staffDuties", staffDuties);
 app.use("/api/staffType", staffType);
 app.use("/api/userRequests", userRequests);
+app.use("/api/user", user);
+app.use("/api/auth", auth);
 const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 

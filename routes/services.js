@@ -2,6 +2,7 @@ const express = require("express");
 const { Service, validateService } = require("../models/servicesSchema");
 const { Organization } = require("../models/organizationSchema");
 const router = express.Router();
+const auth = require("../middleware/auth");
 const mongoose = require("mongoose");
 
 router.get("/", paginatedResults(Service), async (req, res) => {
@@ -21,7 +22,7 @@ router.get("/:id", async (req, res) => {
   res.send(service);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Service not found with the given ID ");
   const service = await Service.findByIdAndRemove(req.params.id);
@@ -30,7 +31,7 @@ router.delete("/:id", async (req, res) => {
   res.send(service);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   const { error } = validateService(req.body);
   if (error) {
     return res.status(400).send(error.details[0].message);
@@ -56,7 +57,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { error } = validateService(req.body);
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id))

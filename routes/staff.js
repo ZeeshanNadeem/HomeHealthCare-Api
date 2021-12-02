@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../middleware/auth");
 const { Staff, validateStaff } = require("../models/staffSchema");
 const { Qualification } = require("../models/qualificationSchema");
 
@@ -34,7 +35,7 @@ router.get("/:id", async (req, res) => {
   res.send(staff);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Staff member found with the given ID ");
   const staff = await Staff.findByIdAndRemove(req.params.id);
@@ -43,7 +44,7 @@ router.delete("/:id", async (req, res) => {
   res.send(staff);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   const { error } = validateStaff(req.body);
   if (error) {
     return res.status(400).send(error.details[0].message);
@@ -85,7 +86,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { error } = validateStaff(req.body);
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
