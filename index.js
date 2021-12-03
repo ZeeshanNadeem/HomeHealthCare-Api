@@ -34,7 +34,7 @@ app.use("/api/staff", staff);
 app.use("/api/services", services);
 app.use("/api/bookedSlots", bookedSlot);
 app.use("/api/qualification", qualification);
-app.use("/api/organization", organization);
+app.use("/api/organizations", organization);
 app.use("/api/staffDuties", staffDuties);
 app.use("/api/staffType", staffType);
 app.use("/api/userRequests", userRequests);
