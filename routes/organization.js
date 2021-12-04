@@ -30,8 +30,17 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res.status(400).send("Organization not found with the given ID ");
+  const organization = await Organization.findByIdAndRemove(req.params.id);
+  if (!organization)
+    return res.status(404).send("Organization not found with the given ID");
+  res.send(organization);
+});
+
 router.put("/:id", async (req, res) => {
-  const { error } = validateService(req.body);
+  const { error } = validateOrganization(req.body);
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res
@@ -52,7 +61,9 @@ router.put("/:id", async (req, res) => {
   );
 
   if (!organization)
-    return res.status(404).send("Service with the given ID was not found.");
+    return res
+      .status(404)
+      .send("Organizaation with the given ID was not found.");
 
   res.send(organization);
 });
