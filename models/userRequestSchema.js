@@ -3,6 +3,7 @@ const Joi = require("joi");
 const { staffSchema } = require("./staffSchema");
 const { organizationSchema } = require("./organizationSchema");
 const { servicesSchema } = require("./servicesSchema");
+const { userSchema } = require("./userSchema");
 const { boolean } = require("joi");
 const userRequestSchema = new mongoose.Schema({
   fullName: {

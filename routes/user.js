@@ -7,6 +7,10 @@ const _ = require("lodash");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const auth = require("../middleware/auth");
+const { StaffType } = require("../models/StaffTypeSchema");
+const { Staff } = require("../models/staffSchema");
+const { Qualification } = require("../models/qualificationSchema");
+
 router.get("/", async (req, res) => {
   if (req.query.getOrganizationAdmins) {
     const users = await User.find({ isOrganizationAdmin: "pending" });
@@ -56,6 +60,7 @@ router.post("/", async (req, res) => {
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
+
   let user = await User.findOne({ email: req.body.email });
   if (user) {
     return res.status(400).send("User already exists.");
@@ -64,6 +69,29 @@ router.post("/", async (req, res) => {
   user = new User(
     _.pick(req.body, ["fullName", "dateOfBirth", "email", "password"])
   );
+
+  // const staffType = await StaffType.findById(req.body.staffTypeID);
+  // if (!staffType) return res.status(400).send("Staff Type doesn't exist");
+
+  // const qualification = await Qualification.findById(req.body.qualificationID);
+
+  // if (!qualification)
+  //   return res.status(400).send("The qualification doesn't exist");
+
+  const staff = await Staff.findById(req.body.staffMemberID);
+  if (staff) {
+    user.staffMember = staff;
+  }
+
+  // user.staffType = { _id: staffType._id, name: staffType.name };
+  // user.qualification = { _id: qualification._id, name: qualification.name };
+
+  // user.availabilityFrom = req.body.availabilityFrom;
+  // user.availabilityTo = req.body.availabilityTo;
+  // user.availabileDayFrom = req.body.availabileDayFrom;
+  // user.availabileDayTo = req.body.availabileDayTo;
+
+  user.phone = req.body.phone;
 
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
@@ -76,7 +104,9 @@ router.post("/", async (req, res) => {
   res
     .header("x-auth-token", token)
     .header("access-control-expose-headers", "x-auth-token")
-    .send(_.pick(user, ["_id", "fullName", "dateOfBirth", "email"]));
+    .send(
+      _.pick(user, ["_id", "fullName", "dateOfBirth", "email", "staffMember"])
+    );
 });
 
 module.exports = router;

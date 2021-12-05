@@ -12,6 +12,12 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
+  if (req.query.staffMemberId) {
+    const requests = await UserRequest.find({
+      "staffMemberAssigned._id": req.query.staffMemberId,
+    });
+    res.send(requests);
+  }
   const requests = await UserRequest.find();
   res.send(requests);
 });
@@ -38,7 +44,7 @@ router.post("/", async (req, res) => {
   const { error } = validateUserRequest(req.body);
 
   if (error) {
-    console.log("ERROR ::::", error);
+    console.log("Error:", error);
     return res.status(400).send(error.details[0].message);
   }
 
@@ -77,7 +83,7 @@ router.post("/", async (req, res) => {
     const requestSaved = await request.save();
     res.send(requestSaved);
   } catch (ex) {
-    console.log("EX:::", ex);
+    console.log("Ex:", ex);
     return res.status(400).send(ex.details[0].message);
   }
 });

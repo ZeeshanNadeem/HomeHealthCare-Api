@@ -1,8 +1,12 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const { staffSchema } = require("./staffSchema");
+const { qualificationSchema } = require("./qualificationSchema");
+
+const { staffTypeSchema } = require("./StaffTypeSchema");
 const config = require("config");
 const Joi = require("joi");
+const { object } = require("joi");
 
 const userSchema = new mongoose.Schema({
   fullName: {
@@ -13,14 +17,13 @@ const userSchema = new mongoose.Schema({
   },
   dateOfBirth: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
     required: true,
     minlength: 5,
     maxlength: 255,
-    unique: true,
+    // unique: true,
   },
   password: {
     type: String,
@@ -34,8 +37,35 @@ const userSchema = new mongoose.Schema({
   isOrganizationAdmin: {
     type: String,
   },
-  // staff: {
-  //   type: staffSchema,
+  staffMember: {
+    type: staffSchema,
+  },
+  // staffType: {
+  //   type: staffTypeSchema,
+  // },
+  // qualification: {
+  //   type: qualificationSchema,
+  // },
+  // staffType: {
+  //   type: Object,
+  // },
+  // qualification: {
+  //   type: Object,
+  // },
+  // availabilityFrom: {
+  //   type: String,
+  // },
+  // availabilityTo: {
+  //   type: String,
+  // },
+  // availabileDayFrom: {
+  //   type: String,
+  // },
+  // availabileDayTo: {
+  //   type: String,
+  // },
+  // phone: {
+  //   type: Number,
   // },
 
   // AgreePolicy: {
@@ -51,6 +81,7 @@ userSchema.methods.generateAuthToken = function () {
       fullName: this.fullName,
       isAppAdmin: this.isAppAdmin,
       isOrganizationAdmin: this.isOrganizationAdmin,
+      staffMember: this.staffMember,
     },
     config.get("jwtPrivateKey")
   );
@@ -62,13 +93,15 @@ const User = mongoose.model("User", userSchema);
 function validateUser(user) {
   const schema = Joi.object({
     fullName: Joi.string().min(5).max(50).required(),
-    dateOfBirth: Joi.string().required(),
+    dateOfBirth: Joi.string(),
     email: Joi.string().min(5).max(255).required().email(),
     password: Joi.string().min(5).max(255).required(),
     isOrganizationAdmin: Joi.boolean(),
+    staffMemberID: Joi.objectId(),
   });
   return schema.validate(user);
 }
 
 module.exports.User = User;
 module.exports.validateUser = validateUser;
+module.exports.userSchema = userSchema;

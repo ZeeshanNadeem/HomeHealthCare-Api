@@ -1,6 +1,8 @@
 const express = require("express");
 const auth = require("../middleware/auth");
 const { Staff, validateStaff } = require("../models/staffSchema");
+
+const { User } = require("../models/userSchema");
 const { Qualification } = require("../models/qualificationSchema");
 
 const { StaffType } = require("../models/StaffTypeSchema");
@@ -35,7 +37,7 @@ router.get("/:id", async (req, res) => {
   res.send(staff);
 });
 
-router.delete("/:id", auth, async (req, res) => {
+router.delete("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Staff member found with the given ID ");
   const staff = await Staff.findByIdAndRemove(req.params.id);
@@ -44,10 +46,15 @@ router.delete("/:id", auth, async (req, res) => {
   res.send(staff);
 });
 
-router.post("/", auth, async (req, res) => {
+router.post("/", async (req, res) => {
   const { error } = validateStaff(req.body);
   if (error) {
     return res.status(400).send(error.details[0].message);
+  }
+
+  let user = await User.findOne({ email: req.body.email });
+  if (user) {
+    return res.status(400).send("User already exists.");
   }
 
   const qualification = await Qualification.findById(req.body.qualificationID);
@@ -60,7 +67,8 @@ router.post("/", auth, async (req, res) => {
 
   const staff = new Staff({
     fullName: req.body.fullName,
-    dateOfBirth: req.body.dateOfBirth,
+    email: req.body.email,
+    // dateOfBirth: req.body.dateOfBirth,
     staffType: {
       _id: staffType._id,
       name: staffType.name,

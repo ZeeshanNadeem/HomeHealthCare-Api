@@ -8,10 +8,10 @@ const staffSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  dateOfBirth: {
-    type: String,
-    required: true,
-  },
+  // dateOfBirth: {
+  //   type: String,
+  //   required: true,
+  // },
   staffType: {
     type: staffTypeSchema,
     required: true,
@@ -51,7 +51,7 @@ const Staff = mongoose.model("Staff", staffSchema);
 function validateStaff(Staff) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
-    dateOfBirth: Joi.string().required(),
+    // dateOfBirth: Joi.string().required(),
     staffTypeID: Joi.objectId().required(),
     qualificationID: Joi.objectId().required(),
     availabilityFrom: Joi.string().required(),
@@ -59,6 +59,7 @@ function validateStaff(Staff) {
     availabileDayFrom: Joi.string().required(),
     availabileDayTo: Joi.string().required(),
     // email: Joi.string().required(),
+    password: Joi.string().required(),
     phone: Joi.string().required(),
   });
   return schema.validate(Staff);
