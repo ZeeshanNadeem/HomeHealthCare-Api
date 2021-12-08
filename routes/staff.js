@@ -8,6 +8,8 @@ const { Qualification } = require("../models/qualificationSchema");
 const { StaffType } = require("../models/StaffTypeSchema");
 const router = express.Router();
 const mongoose = require("mongoose");
+const { Organization } = require("../models/organizationSchema");
+const { Service } = require("../models/servicesSchema");
 
 router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
@@ -19,7 +21,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     }
     const staff = await Staff.find({
       "staffType._id": req.query.service,
-      organization: "KRL",
+      "Organization._id": req.query.organization,
     });
     res.send(staff);
   }
@@ -49,6 +51,7 @@ router.delete("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   const { error } = validateStaff(req.body);
   if (error) {
+    console.log("error BLOCK:::", ex);
     return res.status(400).send(error.details[0].message);
   }
 
@@ -59,8 +62,8 @@ router.post("/", async (req, res) => {
 
   const qualification = await Qualification.findById(req.body.qualificationID);
 
-  const staffType = await StaffType.findById(req.body.staffTypeID);
-  if (!staffType) return res.status(400).send("Staff Type doesn't exist");
+  const service = await Service.findById(req.body.serviceID);
+  if (!service) return res.status(400).send("Service Type doesn't exist");
 
   if (!qualification)
     return res.status(400).send("The qualification doesn't exist");
@@ -69,11 +72,11 @@ router.post("/", async (req, res) => {
     fullName: req.body.fullName,
     email: req.body.email,
     // dateOfBirth: req.body.dateOfBirth,
-    staffType: {
-      _id: staffType._id,
-      name: staffType.name,
+    staffSpeciality: {
+      _id: service._id,
+      name: service.serviceName,
     },
-
+    Organization: req.body.Organization,
     qualification: {
       _id: qualification._id,
       name: qualification.name,
@@ -90,11 +93,12 @@ router.post("/", async (req, res) => {
     const staffSaved = await staff.save();
     res.send(staffSaved);
   } catch (ex) {
+    console.log("CATCH BLOCK:::", ex);
     return res.status(400).send(ex.details[0].message);
   }
 });
 
-router.put("/:id", auth, async (req, res) => {
+router.put("/:id", async (req, res) => {
   const { error } = validateStaff(req.body);
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
@@ -107,9 +111,8 @@ router.put("/:id", auth, async (req, res) => {
 
   const qualification = await Qualification.findById(req.body.qualificationID);
 
-  const staffType = await StaffType.findById(req.body.staffTypeID);
-
-  if (!staffType) return res.status(400).send("Staff Type doesn't exist");
+  const service = await Service.findById(req.body.serviceID);
+  if (!service) return res.status(400).send("Service Type doesn't exist");
 
   if (!qualification)
     return res.status(400).send("The qualification doesn't exist");
@@ -119,13 +122,16 @@ router.put("/:id", auth, async (req, res) => {
     {
       fullName: req.body.fullName,
       dateOfBirth: req.body.dateOfBirth,
-      staffType: staffType,
-
+      staffSpeciality: {
+        _id: service._id,
+        name: service.serviceName,
+      },
       qualification: qualification,
       availabilityFrom: req.body.availabilityFrom,
       availabilityTo: req.body.availabilityTo,
       availabileDayFrom: req.body.availabileDayFrom,
       availabileDayTo: req.body.availabileDayTo,
+      Organization: req.body.Organization,
 
       // email: req.body.email,
       phone: req.body.phone,

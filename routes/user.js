@@ -10,14 +10,19 @@ const auth = require("../middleware/auth");
 const { StaffType } = require("../models/StaffTypeSchema");
 const { Staff } = require("../models/staffSchema");
 const { Qualification } = require("../models/qualificationSchema");
+const { Organization } = require("../models/organizationSchema");
+const { Service } = require("../models/servicesSchema");
 
-router.get("/", async (req, res) => {
-  if (req.query.getOrganizationAdmins) {
+router.get("/", paginatedResults(User), async (req, res) => {
+  if ((req.query.page && req.query.limit) || req.query.searchedAdmin) {
+    res.json(res.paginatedResults);
+  } else if (req.query.getOrganizationAdmins) {
     const users = await User.find({ isOrganizationAdmin: "pending" });
     res.send(users);
+  } else {
+    const users = await User.find();
+    res.send(users);
   }
-  const users = await User.find();
-  res.send(users);
 });
 
 router.get("/me", auth, async (req, res) => {
@@ -27,31 +32,72 @@ router.get("/me", auth, async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   // const { error } = validateService(requestBody);
+  console.log("User put!!!");
 
-  if (!mongoose.Types.ObjectId.isValid(req.params.id))
-    return res
-      .status(400)
-      .send("Organization with the given ID was not found. ");
-  // if (error) {
-  //   return res.status(400).send(error.details[0].message);
-  // }
+  if (req.query.findUser) {
+    const qualification = await Qualification.findById(
+      req.body.qualificationID
+    );
 
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    {
-      isOrganizationAdmin: "Approved Admin",
-    },
-    {
-      new: true,
-    }
-  );
+    const service = await Service.findById(req.body.serviceID);
+    if (!service) return res.status(400).send("Service Type doesn't exist");
 
-  if (!user)
-    return res
-      .status(404)
-      .send("Organization with the given ID was not found.");
+    if (!qualification)
+      return res.status(400).send("The qualification doesn't exist");
+    const staffToUpdate = {
+      fullName: req.body.fullName,
 
-  res.send(user);
+      staffSpeciality: {
+        _id: service._id,
+        name: service.serviceName,
+      },
+      qualification: qualification,
+      availabilityFrom: req.body.availabilityFrom,
+      availabilityTo: req.body.availabilityTo,
+      availabileDayFrom: req.body.availabileDayFrom,
+      availabileDayTo: req.body.availabileDayTo,
+      Organization: req.body.Organization,
+
+      // email: req.body.email,
+      phone: req.body.phone,
+    };
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        fullName: req.body.fullName,
+        staffMember: staffToUpdate,
+      },
+      {
+        new: true,
+      }
+    );
+    res.send(user);
+  } else {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res
+        .status(400)
+        .send("Organization with the given ID was not found. ");
+    // if (error) {
+    //   return res.status(400).send(error.details[0].message);
+    // }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        isOrganizationAdmin: "Approved Admin",
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!user)
+      return res
+        .status(404)
+        .send("Organization with the given ID was not found.");
+
+    res.send(user);
+  }
 });
 
 router.post("/", async (req, res) => {
@@ -67,8 +113,24 @@ router.post("/", async (req, res) => {
   }
 
   user = new User(
-    _.pick(req.body, ["fullName", "dateOfBirth", "email", "password"])
+    _.pick(req.body, [
+      "fullName",
+      "dateOfBirth",
+      "email",
+      "password",
+      "isOrganizationAdmin",
+      "staffMember",
+      "Organization",
+    ])
   );
+
+  const OrganizationID = req.body.OrganizationID;
+  if (OrganizationID) {
+    const OrganizationObj = await Organization.findById(
+      req.body.OrganizationID
+    );
+    user.Organization = OrganizationObj;
+  }
 
   // const staffType = await StaffType.findById(req.body.staffTypeID);
   // if (!staffType) return res.status(400).send("Staff Type doesn't exist");
@@ -108,5 +170,77 @@ router.post("/", async (req, res) => {
       _.pick(user, ["_id", "fullName", "dateOfBirth", "email", "staffMember"])
     );
 });
+
+router.delete("/:id", async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res.status(400).send("User not found with the given ID ");
+  const user = await User.findByIdAndRemove(req.params.id);
+  if (!user) return res.status(404).send("User not found with the given ID");
+  res.send(user);
+});
+
+router.get("/:id", async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res.status(400).send("User not found with the given ID");
+  const user = await User.findOne({ "staffMember._id": req.params.id });
+  if (!user) return res.status(404).send("User not found with the given ID");
+
+  res.send(user);
+});
+
+function paginatedResults(model) {
+  return async (req, res, next) => {
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+    const searchedAdmin = req.query.searchedAdmin;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const results = {};
+
+    if (endIndex < (await model.countDocuments().exec())) {
+      results.next = {
+        page: page + 1,
+        limit: limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit,
+      };
+    }
+    // console.log("searched value :::", searchedValue);
+    // const str = "Saturday night plans";
+    // const res = str.startsWith("Sat");
+    // let filterdMovies = movies.filter((m) =>
+    //   m.title.toLowerCase().startsWith(query.toLowerCase())
+    // );
+    try {
+      if (searchedAdmin) {
+        results.results = await model
+          // .startsWith(searchedValue)
+          .find({ fullName: searchedAdmin, isOrganizationAdmin: "pending" })
+
+          .limit(limit)
+          .skip(startIndex)
+          .exec();
+      } else {
+        results.results = await model
+          .find({ isOrganizationAdmin: "pending" })
+          .limit(limit)
+          .skip(startIndex)
+          .exec();
+      }
+
+      res.paginatedResults = results;
+      next();
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+    }
+  };
+}
 
 module.exports = router;

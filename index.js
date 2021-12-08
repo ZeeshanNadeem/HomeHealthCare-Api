@@ -38,6 +38,7 @@ app.use("/api/organizations", organization);
 app.use("/api/staffDuties", staffDuties);
 app.use("/api/staffType", staffType);
 app.use("/api/userRequests", userRequests);
+
 app.use("/api/user", user);
 app.use("/api/auth", auth);
 const Joi = require("joi");

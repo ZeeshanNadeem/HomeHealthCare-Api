@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const { staffSchema } = require("./staffSchema");
 const { qualificationSchema } = require("./qualificationSchema");
-
+const { organizationSchema } = require("./organizationSchema");
 const { staffTypeSchema } = require("./StaffTypeSchema");
 const config = require("config");
 const Joi = require("joi");
@@ -39,6 +39,9 @@ const userSchema = new mongoose.Schema({
   },
   staffMember: {
     type: staffSchema,
+  },
+  Organization: {
+    type: organizationSchema,
   },
   // staffType: {
   //   type: staffTypeSchema,
@@ -82,6 +85,7 @@ userSchema.methods.generateAuthToken = function () {
       isAppAdmin: this.isAppAdmin,
       isOrganizationAdmin: this.isOrganizationAdmin,
       staffMember: this.staffMember,
+      Organization: this.Organization,
     },
     config.get("jwtPrivateKey")
   );
@@ -98,6 +102,7 @@ function validateUser(user) {
     password: Joi.string().min(5).max(255).required(),
     isOrganizationAdmin: Joi.boolean(),
     staffMemberID: Joi.objectId(),
+    OrganizationID: Joi.string(),
   });
   return schema.validate(user);
 }
