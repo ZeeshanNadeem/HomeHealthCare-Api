@@ -24,9 +24,9 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
       "Organization._id": req.query.organization,
     });
     res.send(staff);
+  } else {
+    res.json(res.paginatedResults);
   }
-
-  res.json(res.paginatedResults);
 });
 
 router.get("/:id", async (req, res) => {
