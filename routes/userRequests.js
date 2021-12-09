@@ -12,14 +12,21 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
+  if (req.query.bookedDate) {
+    const requests = await UserRequest.find({
+      Schedule: req.query.bookedDate,
+    });
+    res.send(requests);
+  }
   if (req.query.staffMemberId) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
     });
     res.send(requests);
+  } else {
+    const requests = await UserRequest.find();
+    res.send(requests);
   }
-  const requests = await UserRequest.find();
-  res.send(requests);
 });
 router.get("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
