@@ -16,9 +16,9 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
   // res.send(staff);
 
   if (req.query.day && req.query.service) {
-    if (req.query.day.toUpperCase() === "SUNDAY") {
-      res.send("Sunday's service not available");
-    }
+    // if (req.query.day.toUpperCase() === "SUNDAY") {
+    //   res.send("Sunday's service not available");
+    // }
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,

@@ -17,8 +17,7 @@ router.get("/", async (req, res) => {
       Schedule: req.query.bookedDate,
     });
     res.send(requests);
-  }
-  if (req.query.staffMemberId) {
+  } else if (req.query.staffMemberId) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
     });
