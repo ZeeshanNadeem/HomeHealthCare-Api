@@ -38,6 +38,12 @@ router.get("/:id", async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
+  if (req.query.deleteDuty && req.query.DeleteID) {
+    const requests = await UserRequest.findByIdAndRemove(DeleteID);
+    if (!requests)
+      return res.status(404).send("Request not found with the given ID");
+    res.send(requests);
+  }
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Request not found with the given ID ");
   const requests = await UserRequest.findByIdAndRemove(req.params.id);
@@ -47,6 +53,32 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  if (req.body.assignDuty) {
+    const staffMember = await Staff.findById(req.body.staffMemberID);
+    if (!staffMember)
+      return res
+        .status(404)
+        .send("The Staff member doesn't exist not found with the given ID");
+    const request = new UserRequest({
+      fullName: req.body.fullName,
+      staffMemberAssigned: staffMember,
+      Organization: req.body.Organization,
+      Service: req.body.Service,
+      ServiceNeededFrom: req.body.ServiceNeededFrom,
+      ServiceNeededTo: req.body.ServiceNeededTo,
+      Recursive: req.body.Recursive,
+      Address: req.body.Address,
+      PhoneNo: req.body.PhoneNo,
+    });
+
+    try {
+      const requestSaved = await request.save();
+      res.send(requestSaved);
+    } catch (ex) {
+      console.log("Ex:", ex);
+      return res.status(400).send(ex.details[0].message);
+    }
+  }
   const { error } = validateUserRequest(req.body);
 
   if (error) {
