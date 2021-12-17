@@ -12,12 +12,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
-  if (req.query.bookedDate) {
-    const requests = await UserRequest.find({
-      Schedule: req.query.bookedDate,
-    });
-    res.send(requests);
-  } else if (req.query.staffMemberId) {
+  if (req.query.staffMemberId) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
     });
@@ -53,8 +48,9 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  if (req.body.assignDuty) {
+  if (req.query.assignDuty) {
     const staffMember = await Staff.findById(req.body.staffMemberID);
+
     if (!staffMember)
       return res
         .status(404)
@@ -63,6 +59,7 @@ router.post("/", async (req, res) => {
       fullName: req.body.fullName,
       staffMemberAssigned: staffMember,
       Organization: req.body.Organization,
+      Schedule: req.body.Schedule,
       Service: req.body.Service,
       ServiceNeededFrom: req.body.ServiceNeededFrom,
       ServiceNeededTo: req.body.ServiceNeededTo,
@@ -78,51 +75,53 @@ router.post("/", async (req, res) => {
       console.log("Ex:", ex);
       return res.status(400).send(ex.details[0].message);
     }
-  }
-  const { error } = validateUserRequest(req.body);
+  } else {
+    const { error } = validateUserRequest(req.body);
 
-  if (error) {
-    console.log("Error:", error);
-    return res.status(400).send(error.details[0].message);
-  }
+    if (error) {
+      return res.status(400).send(error.details[0].message);
+    }
 
-  const staffMember = await Staff.findById(req.body.staffMemberID);
-  if (!staffMember)
-    return res
-      .status(404)
-      .send("The Staff member doesn't exist not found with the given ID");
+    const staffMember = await Staff.findById(req.body.staffMemberID);
+    if (!staffMember)
+      return res
+        .status(404)
+        .send("The Staff member doesn't exist not found with the given ID");
 
-  const organization = await Organization.findById(req.body.OrganizationID);
-  if (!organization)
-    return res.status(400).send("Organization with the given ID doesn't exist");
+    const organization = await Organization.findById(req.body.OrganizationID);
+    if (!organization)
+      return res
+        .status(400)
+        .send("Organization with the given ID doesn't exist");
 
-  const service = await Service.findById(req.body.ServiceID);
-  if (!service)
-    return res.status(400).send("Service with the given ID doesn't exist");
+    const service = await Service.findById(req.body.ServiceID);
+    if (!service)
+      return res.status(400).send("Service with the given ID doesn't exist");
 
-  const myArray = req.body.ServiceNeededFrom.split(":");
-  const sum = parseInt(myArray[0]) + 1;
-  const ServiceNeededTo_ = sum + ":00";
+    const myArray = req.body.ServiceNeededFrom.split(":");
+    const sum = parseInt(myArray[0]) + 1;
+    const ServiceNeededTo_ = sum + ":00";
 
-  const request = new UserRequest({
-    fullName: req.body.fullName,
-    staffMemberAssigned: staffMember,
-    Organization: organization,
-    Service: service,
-    Schedule: req.body.Schedule,
-    ServiceNeededFrom: req.body.ServiceNeededFrom,
-    ServiceNeededTo: ServiceNeededTo_,
-    Recursive: req.body.Recursive,
-    Address: req.body.Address,
-    PhoneNo: req.body.PhoneNo,
-  });
+    const request = new UserRequest({
+      fullName: req.body.fullName,
+      staffMemberAssigned: staffMember,
+      Organization: organization,
+      Service: service,
+      Schedule: req.body.Schedule,
+      ServiceNeededFrom: req.body.ServiceNeededFrom,
+      ServiceNeededTo: ServiceNeededTo_,
+      Recursive: req.body.Recursive,
+      Address: req.body.Address,
+      PhoneNo: req.body.PhoneNo,
+    });
 
-  try {
-    const requestSaved = await request.save();
-    res.send(requestSaved);
-  } catch (ex) {
-    console.log("Ex:", ex);
-    return res.status(400).send(ex.details[0].message);
+    try {
+      const requestSaved = await request.save();
+      res.send(requestSaved);
+    } catch (ex) {
+      console.log("Ex:", ex);
+      return res.status(400).send(ex.details[0].message);
+    }
   }
 });
 
