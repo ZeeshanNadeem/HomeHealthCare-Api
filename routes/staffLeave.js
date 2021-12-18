@@ -7,8 +7,25 @@ const { Staff } = require("../models/staffSchema");
 const { StaffLeave, validateStaffLeave } = require("../models/leaveSchema");
 
 router.get("/", async (req, res) => {
-  const staffLeaves = await StaffLeave.find();
-  res.send(staffLeaves);
+  if (req.query.delete) {
+    console.log("req.query.id :", req.query.id);
+    const user = await StaffLeave.findByIdAndRemove(req.query.id);
+    if (!user)
+      return res.status(404).send("Staff leave not found with the given ID");
+    res.send(user);
+  } else {
+    const staffLeaves = await StaffLeave.find();
+    res.send(staffLeaves);
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res.status(400).send("Staff member not found with the given ID ");
+  const user = await StaffLeave.findByIdAndRemove(req.params.id);
+  if (!user)
+    return res.status(404).send("Staff member not found with the given ID");
+  res.send(user);
 });
 
 router.post("/", async (req, res) => {
