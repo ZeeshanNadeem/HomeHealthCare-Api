@@ -7,12 +7,18 @@ const {
 
 const { Organization } = require("../models/organizationSchema");
 const { Service } = require("../models/servicesSchema");
+const { User } = require("../models/userSchema");
 
 const router = express.Router();
 const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
-  if (req.query.staffMemberId) {
+  if (req.query.userID) {
+    const requests = await UserRequest.find({
+      "user._id": req.query.userID,
+    });
+    res.send(requests);
+  } else if (req.query.staffMemberId) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
     });
@@ -51,19 +57,24 @@ router.post("/", async (req, res) => {
   if (req.query.assignDuty) {
     const staffMember = await Staff.findById(req.body.staffMemberID);
 
+    const user = await User.findById(req.body.userID);
+    if (!user)
+      return res.status(404).send("The User doesn't exist with the given ID");
+
     if (!staffMember)
       return res
         .status(404)
-        .send("The Staff member doesn't exist not found with the given ID");
+        .send("The Staff member doesn't exist  with the given ID");
     const request = new UserRequest({
       fullName: req.body.fullName,
+      user: user,
       staffMemberAssigned: staffMember,
       Organization: req.body.Organization,
       Schedule: req.body.Schedule,
       Service: req.body.Service,
       ServiceNeededFrom: req.body.ServiceNeededFrom,
       ServiceNeededTo: req.body.ServiceNeededTo,
-      Recursive: req.body.Recursive,
+      // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
     });
@@ -98,19 +109,24 @@ router.post("/", async (req, res) => {
     if (!service)
       return res.status(400).send("Service with the given ID doesn't exist");
 
+    const user = await User.findById(req.body.userID);
+    if (!user)
+      return res.status(404).send("The User doesn't exist with the given ID");
+
     const myArray = req.body.ServiceNeededFrom.split(":");
     const sum = parseInt(myArray[0]) + 1;
     const ServiceNeededTo_ = sum + ":00";
 
     const request = new UserRequest({
       fullName: req.body.fullName,
+      user: user,
       staffMemberAssigned: staffMember,
       Organization: organization,
       Service: service,
       Schedule: req.body.Schedule,
       ServiceNeededFrom: req.body.ServiceNeededFrom,
       ServiceNeededTo: ServiceNeededTo_,
-      Recursive: req.body.Recursive,
+      // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
     });
