@@ -11,11 +11,13 @@ const { User } = require("../models/userSchema");
 
 const router = express.Router();
 const mongoose = require("mongoose");
+const { request } = require("express");
 
 router.get("/", async (req, res) => {
   if (req.query.userID) {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
+      rated: false,
     });
     res.send(requests);
   } else if (req.query.staffMemberId) {
@@ -44,13 +46,14 @@ router.delete("/:id", async (req, res) => {
     if (!requests)
       return res.status(404).send("Request not found with the given ID");
     res.send(requests);
+  } else {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).send("Request not found with the given ID ");
+    const requests = await UserRequest.findByIdAndRemove(req.params.id);
+    if (!requests)
+      return res.status(404).send("Request not found with the given ID");
+    res.send(requests);
   }
-  if (!mongoose.Types.ObjectId.isValid(req.params.id))
-    return res.status(400).send("Request not found with the given ID ");
-  const requests = await UserRequest.findByIdAndRemove(req.params.id);
-  if (!requests)
-    return res.status(404).send("Request not found with the given ID");
-  res.send(requests);
 });
 
 router.post("/", async (req, res) => {
@@ -77,6 +80,7 @@ router.post("/", async (req, res) => {
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
+      rated: false,
     });
 
     try {
@@ -129,13 +133,13 @@ router.post("/", async (req, res) => {
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
+      rated: false,
     });
 
     try {
       const requestSaved = await request.save();
       res.send(requestSaved);
     } catch (ex) {
-      console.log("Ex:", ex);
       return res.status(400).send(ex.details[0].message);
     }
   }
@@ -176,6 +180,7 @@ router.put("/:id", async (req, res) => {
       OnlyOnce: req.body.OnlyOnce,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
+      rated: false,
     },
     {
       new: true,
@@ -188,4 +193,34 @@ router.put("/:id", async (req, res) => {
   res.send(request);
 });
 
+router.patch("/", async (req, res) => {
+  if (req.query.staffMemberID) {
+    const requests = await UserRequest.find({
+      "staffMemberAssigned._id": req.query.staffMemberID,
+    });
+
+    for (let i = 0; i < requests.length; i++) {
+      const userRequest = await UserRequest.findByIdAndUpdate(
+        requests[i]._id,
+        {
+          $set: {
+            "staffMemberAssigned.Rating": req.body.Rating,
+            "staffMemberAssigned.RatingAvgCount": req.body.RatingAvgCount,
+            rated: true,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+      if (!userRequest)
+        return res
+          .status(404)
+          .send("User Request with the given ID was not found.");
+
+      res.send(userRequest);
+    }
+  }
+});
 module.exports = router;

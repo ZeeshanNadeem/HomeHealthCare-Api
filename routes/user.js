@@ -121,6 +121,8 @@ router.post("/", async (req, res) => {
       "isOrganizationAdmin",
       "staffMember",
       "Organization",
+      "Rating",
+      "RatingAvgCount",
     ])
   );
 
@@ -186,6 +188,36 @@ router.get("/:id", async (req, res) => {
   if (!user) return res.status(404).send("User not found with the given ID");
 
   res.send(user);
+});
+
+router.patch("/", async (req, res) => {
+  if (req.query.staffMemberID) {
+    const requests = await User.find({
+      "staffMember._id": req.query.staffMemberID,
+    });
+
+    for (let i = 0; i < requests.length; i++) {
+      const staff = await User.findByIdAndUpdate(
+        requests[i]._id,
+        {
+          $set: {
+            "staffMember.Rating": req.body.Rating,
+            "staffMember.RatingAvgCount": req.body.RatingAvgCount,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+      if (!staff)
+        return res
+          .status(404)
+          .send("Staff Member with the given ID was not found.");
+
+      res.send(staff);
+    }
+  }
 });
 
 function paginatedResults(model) {

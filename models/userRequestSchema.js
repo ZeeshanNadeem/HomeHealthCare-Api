@@ -50,6 +50,10 @@ const userRequestSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  rated: {
+    type: Boolean,
+    required: true,
+  },
 });
 
 const UserRequest = mongoose.model("UserRequests", userRequestSchema);

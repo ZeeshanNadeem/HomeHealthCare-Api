@@ -87,13 +87,15 @@ router.post("/", async (req, res) => {
     availabileDayTo: req.body.availabileDayTo,
     // email: req.body.email,
     phone: req.body.phone,
+
+    Rating: req.body.Rating,
+    RatingAvgCount: req.body.RatingAvgCount,
   });
 
   try {
     const staffSaved = await staff.save();
     res.send(staffSaved);
   } catch (ex) {
-    console.log("CATCH BLOCK:::", ex);
     return res.status(400).send(ex.details[0].message);
   }
 });
@@ -135,6 +137,8 @@ router.put("/:id", async (req, res) => {
 
       // email: req.body.email,
       phone: req.body.phone,
+      Rating: req.body.Rating,
+      RatingAvgCount: req.body.RatingAvgCount,
     },
     {
       new: true,
@@ -149,6 +153,22 @@ router.put("/:id", async (req, res) => {
   res.send(staff);
 });
 
+router.patch("/:id", async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res
+      .status(400)
+      .send("Staff member with the given ID was not found. ");
+
+  const staff = await Staff.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+  if (!staff)
+    return res
+      .status(404)
+      .send("Staff member with the given ID was not found.");
+
+  res.send(staff);
+});
 function paginatedResults(model) {
   return async (req, res, next) => {
     const page = parseInt(req.query.page);

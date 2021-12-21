@@ -43,6 +43,12 @@ const userSchema = new mongoose.Schema({
   Organization: {
     type: organizationSchema,
   },
+  Rating: {
+    type: Number,
+  },
+  RatingAvgCount: {
+    type: Number,
+  },
   // staffType: {
   //   type: staffTypeSchema,
   // },
@@ -86,6 +92,8 @@ userSchema.methods.generateAuthToken = function () {
       isOrganizationAdmin: this.isOrganizationAdmin,
       staffMember: this.staffMember,
       Organization: this.Organization,
+      Rating: this.Rating,
+      RatingAvgCount: this.RatingAvgCount,
     },
     config.get("jwtPrivateKey")
   );
@@ -103,6 +111,8 @@ function validateUser(user) {
     isOrganizationAdmin: Joi.boolean(),
     staffMemberID: Joi.objectId(),
     OrganizationID: Joi.string(),
+    Rating: Joi.number(),
+    RatingAvgCount: Joi.number(),
   });
   return schema.validate(user);
 }

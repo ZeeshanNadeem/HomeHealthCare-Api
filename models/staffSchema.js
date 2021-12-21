@@ -49,6 +49,14 @@ const staffSchema = new mongoose.Schema({
     type: organizationSchema,
     required: true,
   },
+  Rating: {
+    type: Number,
+    required: true,
+  },
+  RatingAvgCount: {
+    type: Number,
+    required: true,
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);
@@ -67,6 +75,8 @@ function validateStaff(Staff) {
     password: Joi.string().required(),
     phone: Joi.string().required(),
     Organization: Joi.object().required(),
+    Rating: Joi.number().required(),
+    RatingAvgCount: Joi.number().required(),
   });
   return schema.validate(Staff);
 }
