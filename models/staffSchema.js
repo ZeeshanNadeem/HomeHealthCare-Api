@@ -4,6 +4,7 @@ const { qualificationSchema } = require("./qualificationSchema");
 const { organizationSchema } = require("./organizationSchema");
 
 const { staffTypeSchema } = require("./StaffTypeSchema");
+const { number } = require("joi");
 const staffSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -30,11 +31,11 @@ const staffSchema = new mongoose.Schema({
     required: true,
   },
   availabileDayFrom: {
-    type: String,
+    type: Number,
     required: true,
   },
   availabileDayTo: {
-    type: String,
+    type: Number,
     required: true,
   },
   // email: {
@@ -69,8 +70,8 @@ function validateStaff(Staff) {
     qualificationID: Joi.objectId().required(),
     availabilityFrom: Joi.string().required(),
     availabilityTo: Joi.string().required(),
-    availabileDayFrom: Joi.string().required(),
-    availabileDayTo: Joi.string().required(),
+    availabileDayFrom: Joi.number().required(),
+    availabileDayTo: Joi.number().required(),
     email: Joi.string().required(),
     password: Joi.string().required(),
     phone: Joi.string().required(),

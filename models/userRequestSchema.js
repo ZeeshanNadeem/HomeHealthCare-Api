@@ -50,6 +50,14 @@ const userRequestSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  City: {
+    type: String,
+    required: true,
+  },
+  Email: {
+    type: String,
+    required: true,
+  },
   rated: {
     type: Boolean,
     required: true,
@@ -71,6 +79,8 @@ function validateUserRequest(name) {
     // Recursive: Joi.boolean().required(),
     Address: Joi.string().required(),
     PhoneNo: Joi.number().required(),
+    email: Joi.string().min(5).max(255).required().email(),
+    city: Joi.string().required(),
   });
   return schema.validate(name);
 }

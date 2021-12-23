@@ -17,7 +17,6 @@ router.get("/", async (req, res) => {
   if (req.query.userID) {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
-      rated: false,
     });
     res.send(requests);
   } else if (req.query.staffMemberId) {
@@ -134,6 +133,8 @@ router.post("/", async (req, res) => {
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
       rated: false,
+      Email: req.body.email,
+      City: req.body.city,
     });
 
     try {
@@ -181,6 +182,8 @@ router.put("/:id", async (req, res) => {
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
       rated: false,
+      Email: req.body.email,
+      City: req.body.city,
     },
     {
       new: true,

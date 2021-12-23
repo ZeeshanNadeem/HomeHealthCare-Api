@@ -22,7 +22,10 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
-    });
+    }).and([
+      { availabileDayFrom: { $lte: req.query.day } },
+      { availabileDayTo: { $gte: req.query.day } },
+    ]);
     res.send(staff);
   } else {
     res.json(res.paginatedResults);
