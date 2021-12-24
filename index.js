@@ -11,6 +11,7 @@ const staffDuties = require("./routes/staffDuties");
 const bookedSlot = require("./routes/bookedSlots");
 const userRequests = require("./routes/userRequests");
 const StaffLeave = require("./routes/staffLeave");
+const ConfirmService = require("./routes/ConfirmService");
 const user = require("./routes/user");
 const auth = require("./routes/auth");
 const app = express();
@@ -40,6 +41,7 @@ app.use("/api/staffDuties", staffDuties);
 app.use("/api/staffType", staffType);
 app.use("/api/userRequests", userRequests);
 app.use("/api/staffLeave", StaffLeave);
+app.use("/api/confirmService", ConfirmService);
 
 app.use("/api/user", user);
 app.use("/api/auth", auth);

@@ -1,9 +1,9 @@
 const express = require("express");
 const { Staff } = require("../models/staffSchema");
 const {
-  UserRequest,
+  ConfirmService,
   validateUserRequest,
-} = require("../models/UserRequestSchema");
+} = require("../models/ConfirmServiceSchema");
 
 const { Organization } = require("../models/organizationSchema");
 const { Service } = require("../models/servicesSchema");
@@ -15,24 +15,24 @@ const { request } = require("express");
 
 router.get("/", async (req, res) => {
   if (req.query.userID) {
-    const requests = await UserRequest.find({
+    const requests = await ConfirmService.find({
       "user._id": req.query.userID,
     });
     res.send(requests);
   } else if (req.query.staffMemberId) {
-    const requests = await UserRequest.find({
+    const requests = await ConfirmService.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
     });
     res.send(requests);
   } else {
-    const requests = await UserRequest.find();
+    const requests = await ConfirmService.find();
     res.send(requests);
   }
 });
 router.get("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Request not found with the given ID");
-  const requests = await UserRequest.findById(req.params.id);
+  const requests = await ConfirmService.findById(req.params.id);
   if (!requests)
     return res.status(404).send("Request not found with the given ID");
 
@@ -41,14 +41,14 @@ router.get("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   if (req.query.deleteDuty && req.query.DeleteID) {
-    const requests = await UserRequest.findByIdAndRemove(DeleteID);
+    const requests = await ConfirmService.findByIdAndRemove(DeleteID);
     if (!requests)
       return res.status(404).send("Request not found with the given ID");
     res.send(requests);
   } else {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
       return res.status(400).send("Request not found with the given ID ");
-    const requests = await UserRequest.findByIdAndRemove(req.params.id);
+    const requests = await ConfirmService.findByIdAndRemove(req.params.id);
     if (!requests)
       return res.status(404).send("Request not found with the given ID");
     res.send(requests);
@@ -56,31 +56,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  if (req.query.postObj) {
-    const request = new UserRequest({
-      fullName: req.body.fullName,
-      Email: req.body.Email,
-      user: req.body.user,
-      staffMemberAssigned: req.body.staffMemberAssigned,
-      Organization: req.body.Organization,
-      Schedule: req.body.Schedule,
-      Service: req.body.Service,
-      ServiceNeededFrom: req.body.ServiceNeededFrom,
-      ServiceNeededTo: req.body.ServiceNeededTo,
-      City: req.body.City,
-      // Recursive: req.body.Recursive,
-      Address: req.body.Address,
-      PhoneNo: req.body.PhoneNo,
-      rated: req.body.rated,
-    });
-
-    try {
-      const requestSaved = await request.save();
-      res.send(requestSaved);
-    } catch (ex) {
-      return res.status(400).send(ex.details[0].message);
-    }
-  } else if (req.query.assignDuty) {
+  if (req.query.assignDuty) {
     const staffMember = await Staff.findById(req.body.staffMemberID);
 
     const user = await User.findById(req.body.userID);
@@ -91,7 +67,7 @@ router.post("/", async (req, res) => {
       return res
         .status(404)
         .send("The Staff member doesn't exist  with the given ID");
-    const request = new UserRequest({
+    const request = new ConfirmService({
       fullName: req.body.fullName,
       user: user,
       staffMemberAssigned: staffMember,
@@ -110,6 +86,7 @@ router.post("/", async (req, res) => {
       const requestSaved = await request.save();
       res.send(requestSaved);
     } catch (ex) {
+      console.log("Ex:", ex);
       return res.status(400).send(ex.details[0].message);
     }
   } else {
@@ -143,7 +120,7 @@ router.post("/", async (req, res) => {
     const sum = parseInt(myArray[0]) + 2;
     const ServiceNeededTo_ = sum + ":00";
 
-    const request = new UserRequest({
+    const request = new ConfirmService({
       fullName: req.body.fullName,
       user: user,
       staffMemberAssigned: staffMember,
@@ -192,7 +169,7 @@ router.put("/:id", async (req, res) => {
   if (!service)
     return res.status(400).send("Service with the given ID doesn't exist");
 
-  const request = await UserRequest.findByIdAndUpdate(
+  const request = await ConfirmService.findByIdAndUpdate(
     req.params.id,
     {
       staffMemberAssigned: staffMember,
@@ -221,12 +198,12 @@ router.put("/:id", async (req, res) => {
 
 router.patch("/", async (req, res) => {
   if (req.query.staffMemberID) {
-    const requests = await UserRequest.find({
+    const requests = await ConfirmService.find({
       "staffMemberAssigned._id": req.query.staffMemberID,
     });
 
     for (let i = 0; i < requests.length; i++) {
-      const userRequest = await UserRequest.findByIdAndUpdate(
+      const userRequest = await ConfirmService.findByIdAndUpdate(
         requests[i]._id,
         {
           $set: {
