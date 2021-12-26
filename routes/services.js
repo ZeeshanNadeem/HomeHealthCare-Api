@@ -66,11 +66,17 @@ router.put("/:id", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
+  const organization = await Organization.findById(
+    req.body.serviceOrgranization
+  );
+  if (!organization)
+    return res.status(400).send("Organization Type doesn't exist");
+
   const service = await Service.findByIdAndUpdate(
     req.params.id,
     {
       serviceName: req.body.serviceName,
-      serviceOrgranization: req.body.serviceOrgranization,
+      serviceOrgranization: organization,
       servicePrice: req.body.servicePrice,
     },
     {
@@ -120,11 +126,11 @@ function paginatedResults(model) {
           // .startsWith(searchedValue)
           .find({
             "serviceOrgranization._id": organization,
-          });
+          })
 
-        // .limit(limit)
-        // .skip(startIndex)
-        // .exec();
+          .limit(limit)
+          .skip(startIndex)
+          .exec();
       } else if (searchedValue) {
         results.results = await model
           // .startsWith(searchedValue)

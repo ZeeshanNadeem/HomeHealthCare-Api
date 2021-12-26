@@ -32,40 +32,43 @@ router.get("/me", auth, async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   // const { error } = validateService(requestBody);
-  console.log("User put!!!");
 
   if (req.query.findUser) {
-    const qualification = await Qualification.findById(
-      req.body.qualificationID
-    );
+    // const qualification = await Qualification.findById(
+    //   req.body.qualificationID
+    // );
 
-    const service = await Service.findById(req.body.serviceID);
-    if (!service) return res.status(400).send("Service Type doesn't exist");
+    // const service = await Service.findById(req.body.serviceID);
+    // if (!service) return res.status(400).send("Service Type doesn't exist");
 
-    if (!qualification)
-      return res.status(400).send("The qualification doesn't exist");
-    const staffToUpdate = {
-      fullName: req.body.fullName,
+    // if (!qualification)
+    //   return res.status(400).send("The qualification doesn't exist");
+    // const staffToUpdate = {
+    //   fullName: req.body.fullName,
 
-      staffSpeciality: {
-        _id: service._id,
-        name: service.serviceName,
-      },
-      qualification: qualification,
-      availabilityFrom: req.body.availabilityFrom,
-      availabilityTo: req.body.availabilityTo,
-      availabileDayFrom: req.body.availabileDayFrom,
-      availabileDayTo: req.body.availabileDayTo,
-      Organization: req.body.Organization,
+    //   staffSpeciality: {
+    //     _id: service._id,
+    //     name: service.serviceName,
+    //   },
+    //   qualification: qualification,
+    //   availabilityFrom: req.body.availabilityFrom,
+    //   availabilityTo: req.body.availabilityTo,
+    //   availabileDayFrom: req.body.availabileDayFrom,
+    //   availabileDayTo: req.body.availabileDayTo,
+    //   Organization: req.body.Organization,
 
-      // email: req.body.email,
-      phone: req.body.phone,
-    };
+    //   // email: req.body.email,
+    //   phone: req.body.phone,
+    // };
+
+    const staff = await Staff.findById(req.body.staffID);
+    if (!staff) return res.status(400).send("Staff Member doesn't exist");
+
     const user = await User.findByIdAndUpdate(
       req.params.id,
       {
         fullName: req.body.fullName,
-        staffMember: staffToUpdate,
+        staffMember: staff,
       },
       {
         new: true,

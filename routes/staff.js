@@ -20,7 +20,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     //   res.send("Sunday's service not available");
     // }
     const staff = await Staff.find({
-      "staffSpeciality._id": req.query.service,
+      "staffSpeciality.name": req.query.service,
       "Organization._id": req.query.organization,
     }).and([
       { availabileDayFrom: { $lte: req.query.day } },
@@ -54,7 +54,6 @@ router.delete("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   const { error } = validateStaff(req.body);
   if (error) {
-    console.log("error BLOCK:::", ex);
     return res.status(400).send(error.details[0].message);
   }
 
@@ -91,7 +90,7 @@ router.post("/", async (req, res) => {
     // email: req.body.email,
     phone: req.body.phone,
 
-    Rating: req.body.Rating,
+    Rating: false,
     RatingAvgCount: req.body.RatingAvgCount,
   });
 
@@ -198,7 +197,17 @@ function paginatedResults(model) {
     }
 
     try {
-      if (searchedValue) {
+      if (req.query.organizationID) {
+        results.results = await model
+          // .startsWith(searchedValue)
+          .find({
+            "Organization._id": req.query.organizationID,
+          })
+
+          .limit(limit)
+          .skip(startIndex)
+          .exec();
+      } else if (searchedValue) {
         results.results = await model
           // .startsWith(searchedValue)
           .find({ serviceName: searchedValue })
