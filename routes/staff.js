@@ -20,7 +20,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     //   res.send("Sunday's service not available");
     // }
     const staff = await Staff.find({
-      "staffSpeciality.name": req.query.service,
+      "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
     }).and([
       { availabileDayFrom: { $lte: req.query.day } },
