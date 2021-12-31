@@ -74,8 +74,8 @@ router.post("/", async (req, res) => {
       Organization: req.body.Organization,
       Schedule: req.body.Schedule,
       Service: req.body.Service,
-      ServiceNeededFrom: req.body.ServiceNeededFrom,
-      ServiceNeededTo: req.body.ServiceNeededTo,
+      ServiceNeededTime: req.body.ServiceNeededTime,
+      // ServiceNeededTo: req.body.ServiceNeededTo,
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
@@ -116,9 +116,9 @@ router.post("/", async (req, res) => {
     if (!user)
       return res.status(404).send("The User doesn't exist with the given ID");
 
-    const myArray = req.body.ServiceNeededFrom.split(":");
-    const sum = parseInt(myArray[0]) + 2;
-    const ServiceNeededTo_ = sum + ":00";
+    // const myArray = req.body.ServiceNeededFrom.split(":");
+    // const sum = parseInt(myArray[0]) + 3;
+    // const ServiceNeededTo_ = sum + ":00";
 
     const request = new ConfirmService({
       fullName: req.body.fullName,
@@ -127,8 +127,8 @@ router.post("/", async (req, res) => {
       Organization: organization,
       Service: service,
       Schedule: req.body.Schedule,
-      ServiceNeededFrom: req.body.ServiceNeededFrom,
-      ServiceNeededTo: ServiceNeededTo_,
+      ServiceNeededTime: req.body.ServiceNeededTime,
+      // ServiceNeededTo: ServiceNeededTo_,
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
@@ -141,6 +141,7 @@ router.post("/", async (req, res) => {
       const requestSaved = await request.save();
       res.send(requestSaved);
     } catch (ex) {
+      console.log("EX::", ex);
       return res.status(400).send(ex.details[0].message);
     }
   }
@@ -176,8 +177,8 @@ router.put("/:id", async (req, res) => {
       Organization: organization,
       Service: service,
       Schedule: req.body.Schedule,
-      ServiceNeededFrom: req.body.ServiceNeededFrom,
-      ServiceNeededTo: req.body.ServiceNeededTo,
+      ServiceNeededTime: req.body.ServiceNeededFrom,
+      // ServiceNeededTo: req.body.ServiceNeededTo,
       OnlyOnce: req.body.OnlyOnce,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,

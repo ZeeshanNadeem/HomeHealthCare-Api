@@ -30,14 +30,14 @@ const serviceRequestSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  ServiceNeededFrom: {
+  ServiceNeededTime: {
     type: String,
     required: true,
   },
-  ServiceNeededTo: {
-    type: String,
-    required: true,
-  },
+  // ServiceNeededTo: {
+  //   type: String,
+  //   required: true,
+  // },
   // Recursive: {
   //   type: Boolean,
   //   required: true,
@@ -72,7 +72,7 @@ function validateUserRequest(name) {
     userID: Joi.objectId().required(),
     staffMemberID: Joi.objectId().required(),
     OrganizationID: Joi.objectId().required(),
-    ServiceNeededFrom: Joi.string().required(),
+    ServiceNeededTime: Joi.string().required(),
     // ServiceNeededTo: Joi.string().required(),
     ServiceID: Joi.objectId().required(),
     Schedule: Joi.string().required(),
