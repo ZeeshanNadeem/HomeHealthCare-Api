@@ -22,22 +22,30 @@ const staffSchema = new mongoose.Schema({
     type: qualificationSchema,
     required: true,
   },
-  availabilityFrom: {
-    type: String,
+  // availabilityFrom: {
+  //   type: String,
+  //   required: true,
+  // },
+  // availabilityTo: {
+  //   type: String,
+  //   required: true,
+  // },
+  availableTime: {
+    type: Array,
     required: true,
   },
-  availabilityTo: {
-    type: String,
+  availableDays: {
+    type: Array,
     required: true,
   },
-  availabileDayFrom: {
-    type: Number,
-    required: true,
-  },
-  availabileDayTo: {
-    type: Number,
-    required: true,
-  },
+  // availabileDayFrom: {
+  //   type: Number,
+  //   required: true,
+  // },
+  // availabileDayTo: {
+  //   type: Number,
+  //   required: true,
+  // },
   // email: {
   //   type: String,
   //   required: true,
@@ -68,10 +76,12 @@ function validateStaff(Staff) {
     // dateOfBirth: Joi.string().required(),
     serviceID: Joi.objectId().required(),
     qualificationID: Joi.objectId().required(),
-    availabilityFrom: Joi.string().required(),
-    availabilityTo: Joi.string().required(),
-    availabileDayFrom: Joi.number().required(),
-    availabileDayTo: Joi.number().required(),
+    // availabilityFrom: Joi.string().required(),
+    // availabilityTo: Joi.string().required(),
+    // availabileDayFrom: Joi.number().required(),
+    // availabileDayTo: Joi.number().required(),
+    availableTime: Joi.array().required(),
+    availableDays: Joi.array().required(),
     email: Joi.string().required(),
     password: Joi.string().required(),
     phone: Joi.string().required(),

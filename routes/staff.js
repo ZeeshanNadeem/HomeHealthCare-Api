@@ -23,8 +23,8 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
     }).and([
-      { availabileDayFrom: { $lte: req.query.day } },
-      { availabileDayTo: { $gte: req.query.day } },
+      { "availableDays.name": req.query.day },
+      { "availableDays.value": true },
     ]);
     res.send(staff);
   } else {
@@ -83,10 +83,15 @@ router.post("/", async (req, res) => {
       _id: qualification._id,
       name: qualification.name,
     },
-    availabilityFrom: req.body.availabilityFrom,
-    availabilityTo: req.body.availabilityTo,
-    availabileDayFrom: req.body.availabileDayFrom,
-    availabileDayTo: req.body.availabileDayTo,
+
+    // availabilityFrom: req.body.availabilityFrom,
+    // availabilityTo: req.body.availabilityTo,
+
+    availableTime: req.body.availableTime,
+    availableDays: req.body.availableDays,
+
+    // availabileDayFrom: req.body.availabileDayFrom,
+    // availabileDayTo: req.body.availabileDayTo,
     // email: req.body.email,
     phone: req.body.phone,
 
@@ -131,10 +136,15 @@ router.put("/:id", async (req, res) => {
         name: service.serviceName,
       },
       qualification: qualification,
-      availabilityFrom: req.body.availabilityFrom,
-      availabilityTo: req.body.availabilityTo,
-      availabileDayFrom: req.body.availabileDayFrom,
-      availabileDayTo: req.body.availabileDayTo,
+
+      // availabilityFrom: req.body.availabilityFrom,
+      // availabilityTo: req.body.availabilityTo,
+
+      availableTime: req.body.availableTime,
+      availableDays: req.body.availableDays,
+
+      // availabileDayFrom: req.body.availabileDayFrom,
+      // availabileDayTo: req.body.availabileDayTo,
       Organization: req.body.Organization,
 
       // email: req.body.email,
