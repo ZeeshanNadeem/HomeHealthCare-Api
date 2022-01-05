@@ -113,7 +113,6 @@ router.post("/", async (req, res) => {
       const requestSaved = await request.save();
       res.send(requestSaved);
     } catch (ex) {
-      console.log("EX:", ex);
       return res.status(400).send(ex.details[0].message);
     }
   } else {
