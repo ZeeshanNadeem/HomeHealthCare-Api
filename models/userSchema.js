@@ -49,6 +49,7 @@ const userSchema = new mongoose.Schema({
   RatingAvgCount: {
     type: Number,
   },
+
   // staffType: {
   //   type: staffTypeSchema,
   // },
