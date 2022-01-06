@@ -49,6 +49,15 @@ const userSchema = new mongoose.Schema({
   RatingAvgCount: {
     type: Number,
   },
+  CV: {
+    type: String,
+  },
+  CVName: {
+    type: String,
+  },
+  fileType: {
+    type: String,
+  },
 
   // staffType: {
   //   type: staffTypeSchema,
@@ -111,6 +120,9 @@ function validateUser(user) {
     password: Joi.string().min(5).max(255).required(),
     isOrganizationAdmin: Joi.boolean(),
     staffMemberID: Joi.objectId(),
+    CV: Joi.string(),
+    CVName: Joi.string(),
+    fileType: Joi.string(),
     OrganizationID: Joi.string(),
     Rating: Joi.number(),
     RatingAvgCount: Joi.number(),

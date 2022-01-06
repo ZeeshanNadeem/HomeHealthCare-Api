@@ -33,6 +33,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use("/CV", express.static("CV"));
 app.use("/api/staff", staff);
 
 app.use("/api/services", services);

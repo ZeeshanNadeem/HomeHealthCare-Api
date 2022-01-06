@@ -12,6 +12,34 @@ const { Staff } = require("../models/staffSchema");
 const { Qualification } = require("../models/qualificationSchema");
 const { Organization } = require("../models/organizationSchema");
 const { Service } = require("../models/servicesSchema");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./CV/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "application/pdf" ||
+    file.mimetype === "application/docx" ||
+    file.mimetype === "application/doc"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: { fieldSize: 1024 * 1024 * 30 },
+  fileFilter: fileFilter,
+});
 
 router.get("/", paginatedResults(User), async (req, res) => {
   if ((req.query.page && req.query.limit) || req.query.searchedAdmin) {
@@ -103,7 +131,8 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", upload.single("CV"), async (req, res) => {
+  console.log(req.file);
   const { error } = validateUser(req.body);
 
   if (error) {
@@ -126,6 +155,7 @@ router.post("/", async (req, res) => {
       "Organization",
       "Rating",
       "RatingAvgCount",
+      "CV",
     ])
   );
 
@@ -136,7 +166,9 @@ router.post("/", async (req, res) => {
     );
     user.Organization = OrganizationObj;
   }
-
+  user.CV = req.file.path;
+  user.CVName = req.file.originalname;
+  user.fileType = req.file.mimetype;
   // const staffType = await StaffType.findById(req.body.staffTypeID);
   // if (!staffType) return res.status(400).send("Staff Type doesn't exist");
 
