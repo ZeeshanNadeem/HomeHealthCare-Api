@@ -16,7 +16,7 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./CV/");
+    cb(null, "./uploads/");
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -155,7 +155,7 @@ router.post("/", upload.single("CV"), async (req, res) => {
       "Organization",
       "Rating",
       "RatingAvgCount",
-      "CV",
+      "ResumePath",
     ])
   );
 
@@ -166,8 +166,8 @@ router.post("/", upload.single("CV"), async (req, res) => {
     );
     user.Organization = OrganizationObj;
   }
-  user.CV = req.file.path;
-  user.CVName = req.file.originalname;
+  user.ResumePath = req.file.path;
+  user.ResumeName = req.file.originalname;
   user.fileType = req.file.mimetype;
   // const staffType = await StaffType.findById(req.body.staffTypeID);
   // if (!staffType) return res.status(400).send("Staff Type doesn't exist");

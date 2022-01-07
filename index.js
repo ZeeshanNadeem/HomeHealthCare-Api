@@ -1,6 +1,7 @@
 const config = require("config");
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 // const doctors = require("./routes/doctors");
 const staff = require("./routes/staff");
 const services = require("./routes/services");
@@ -33,7 +34,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use("/CV", express.static("CV"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/staff", staff);
 
 app.use("/api/services", services);

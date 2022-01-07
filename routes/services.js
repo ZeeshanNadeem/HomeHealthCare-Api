@@ -3,6 +3,7 @@ const { Service, validateService } = require("../models/servicesSchema");
 const { Organization } = require("../models/organizationSchema");
 const router = express.Router();
 const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
 const mongoose = require("mongoose");
 
 router.get("/", paginatedResults(Service), async (req, res) => {

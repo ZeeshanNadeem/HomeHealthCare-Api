@@ -1,5 +1,6 @@
 const express = require("express");
 const auth = require("../middleware/auth");
+const admin = require("../middleware/auth");
 const { Staff, validateStaff } = require("../models/staffSchema");
 
 const { User } = require("../models/userSchema");
