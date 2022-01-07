@@ -1,6 +1,8 @@
 const express = require("express");
 const { Service, validateService } = require("../models/servicesSchema");
 const { Organization } = require("../models/organizationSchema");
+
+const { User } = require("../models/userSchema");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
@@ -44,12 +46,14 @@ router.post("/", async (req, res) => {
   if (!organization)
     return res.status(400).send("Organization Type doesn't exist");
 
+  const user = await User.findById(req.body.userID);
+
   const service = new Service({
     serviceName: req.body.serviceName,
     serviceOrgranization: organization,
     servicePrice: req.body.servicePrice,
   });
-
+  if (user) service.user = user;
   try {
     const serviceSaved = await service.save();
     res.send(serviceSaved);
