@@ -46,14 +46,16 @@ router.post("/", async (req, res) => {
   if (!organization)
     return res.status(400).send("Organization Type doesn't exist");
 
-  const user = await User.findById(req.body.userID);
-
   const service = new Service({
     serviceName: req.body.serviceName,
     serviceOrgranization: organization,
     servicePrice: req.body.servicePrice,
   });
-  if (user) service.user = user;
+  if (req.query.userID) {
+    const user = await User.findById(req.body.userID);
+    service.user = user;
+  }
+
   try {
     const serviceSaved = await service.save();
     res.send(serviceSaved);

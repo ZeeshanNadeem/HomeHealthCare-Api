@@ -100,6 +100,9 @@ router.post("/", async (req, res) => {
     RatingAvgCount: req.body.RatingAvgCount,
   });
 
+  if (req.query.approvel) {
+    stafff.approvel = req.query.approvel;
+  }
   try {
     const staffSaved = await staff.save();
     res.send(staffSaved);
