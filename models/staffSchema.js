@@ -4,7 +4,7 @@ const { qualificationSchema } = require("./qualificationSchema");
 const { organizationSchema } = require("./organizationSchema");
 
 const { staffTypeSchema } = require("./StaffTypeSchema");
-const { number } = require("joi");
+
 const staffSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -66,8 +66,8 @@ const staffSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  approvel: {
-    type: "String",
+  servicePrice: {
+    type: String,
   },
 });
 
@@ -76,22 +76,19 @@ const Staff = mongoose.model("Staff", staffSchema);
 function validateStaff(Staff) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
-    // dateOfBirth: Joi.string().required(),
+
     serviceID: Joi.objectId().required(),
     qualificationID: Joi.objectId().required(),
-    // availabilityFrom: Joi.string().required(),
-    // availabilityTo: Joi.string().required(),
-    // availabileDayFrom: Joi.number().required(),
-    // availabileDayTo: Joi.number().required(),
+
     availableTime: Joi.array().required(),
     availableDays: Joi.array().required(),
     email: Joi.string().required(),
     password: Joi.string().required(),
     phone: Joi.string().required(),
-    Organization: Joi.object().required(),
+    Organization: Joi.object().required() || Joi.objectId().required(),
     Rating: Joi.number().required(),
     RatingAvgCount: Joi.number().required(),
-    approvel: Joi.string(),
+    servicePrice: Joi.string(),
   });
   return schema.validate(Staff);
 }

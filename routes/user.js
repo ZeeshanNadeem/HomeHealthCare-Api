@@ -115,7 +115,7 @@ router.put("/:id", async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.params.id,
       {
-        isOrganizationAdmin: "Approved Admin",
+        isOrganizationAdmin: req.body.isOrganizationAdmin,
       },
       {
         new: true,
@@ -126,7 +126,6 @@ router.put("/:id", async (req, res) => {
       return res
         .status(404)
         .send("Organization with the given ID was not found.");
-
     res.send(user);
   }
 });
@@ -197,6 +196,7 @@ router.post("/", upload.single("CV"), async (req, res) => {
   if (req.body.isOrganizationAdmin) {
     user.isOrganizationAdmin = "pending";
   }
+
   await user.save();
 
   const token = user.generateAuthToken();
@@ -204,7 +204,14 @@ router.post("/", upload.single("CV"), async (req, res) => {
     .header("x-auth-token", token)
     .header("access-control-expose-headers", "x-auth-token")
     .send(
-      _.pick(user, ["_id", "fullName", "dateOfBirth", "email", "staffMember"])
+      _.pick(user, [
+        "_id",
+        "fullName",
+        "dateOfBirth",
+        "email",
+        "staffMember",
+        "Organization",
+      ])
     );
 });
 
@@ -252,6 +259,25 @@ router.patch("/", async (req, res) => {
 
       res.send(staff);
     }
+  } else if (req.query.EditUser) {
+    const userGot = await User.findByIdAndUpdate(
+      req.body.staffMemberID,
+      {
+        $set: {
+          staffMember: req.body.staffMemberObj,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!userGot)
+      return res
+        .status(404)
+        .send("Staff Member with the given ID was not found.");
+
+    res.send(userGot);
   }
 });
 

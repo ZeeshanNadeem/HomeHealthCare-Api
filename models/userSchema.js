@@ -6,7 +6,6 @@ const { organizationSchema } = require("./organizationSchema");
 const { staffTypeSchema } = require("./StaffTypeSchema");
 const config = require("config");
 const Joi = require("joi");
-const { object } = require("joi");
 
 const userSchema = new mongoose.Schema({
   fullName: {

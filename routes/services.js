@@ -12,7 +12,10 @@ router.get("/", paginatedResults(Service), async (req, res) => {
   // const services = await Service.find().sort("name");
 
   // res.send(services);
-  res.json(res.paginatedResults);
+  if (req.query.findServiceByUser) {
+    const services = await Service.find({ "user._id": req.query.userID });
+    res.send(services);
+  } else res.json(res.paginatedResults);
 });
 
 router.get("/:id", async (req, res) => {
@@ -51,7 +54,7 @@ router.post("/", async (req, res) => {
     serviceOrgranization: organization,
     servicePrice: req.body.servicePrice,
   });
-  if (req.query.userID) {
+  if (req.body.userID) {
     const user = await User.findById(req.body.userID);
     service.user = user;
   }
@@ -64,6 +67,24 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.patch("/", async (req, res) => {
+  const service = await Service.findByIdAndUpdate(
+    req.body.serviceID,
+    {
+      $set: {
+        "user.isOrganizationAdmin": "Approved Independent Member",
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!service)
+    return res.status(404).send("service with the given ID was not found.");
+
+  res.send(service);
+});
 router.put("/:id", async (req, res) => {
   const { error } = validateService(req.body);
 

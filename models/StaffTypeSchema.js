@@ -5,6 +5,10 @@ const staffTypeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  servicePrice: {
+    type: String,
+    required: true,
+  },
 });
 
 const StaffType = mongoose.model("staffType", staffTypeSchema);
@@ -12,6 +16,7 @@ const StaffType = mongoose.model("staffType", staffTypeSchema);
 function validateStaffType(name) {
   const schema = Joi.object({
     name: Joi.string().required(),
+    servicePrice: Joi.string().required(),
   });
   return schema.validate(name);
 }

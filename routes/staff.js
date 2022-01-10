@@ -4,6 +4,7 @@ const admin = require("../middleware/auth");
 const { Staff, validateStaff } = require("../models/staffSchema");
 
 const { User } = require("../models/userSchema");
+
 const { Qualification } = require("../models/qualificationSchema");
 
 const { StaffType } = require("../models/StaffTypeSchema");
@@ -58,9 +59,11 @@ router.post("/", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
-  let user = await User.findOne({ email: req.body.email });
-  if (user) {
-    return res.status(400).send("User already exists.");
+  if (!req.query.dontCheck) {
+    let user = await User.findOne({ email: req.body.email });
+    if (user) {
+      return res.status(400).send("User already exists.");
+    }
   }
 
   const qualification = await Qualification.findById(req.body.qualificationID);
@@ -71,43 +74,96 @@ router.post("/", async (req, res) => {
   if (!qualification)
     return res.status(400).send("The qualification doesn't exist");
 
-  const staff = new Staff({
-    fullName: req.body.fullName,
-    email: req.body.email,
-    // dateOfBirth: req.body.dateOfBirth,
-    staffSpeciality: {
-      _id: service._id,
-      name: service.serviceName,
-    },
-    Organization: req.body.Organization,
-    qualification: {
-      _id: qualification._id,
-      name: qualification.name,
-    },
+  if (req.query.signUpOrg) {
+    const org = await Organization.findById(req.body.serviceID);
+    if (!org) return res.status(400).send("Organization doesn't exist");
 
-    // availabilityFrom: req.body.availabilityFrom,
-    // availabilityTo: req.body.availabilityTo,
+    const staff = new Staff({
+      fullName: req.body.fullName,
+      email: req.body.email,
+      // dateOfBirth: req.body.dateOfBirth,
+      // staffSpeciality: {
+      //   _id: service._id,
+      //   name: service.serviceName,
+      //   servicePrice: service.servicePrice,
+      // },
+      staffSpeciality: {
+        _id: service._id,
+        name: service.serviceName,
+        servicePrice: service.servicePrice,
+      },
+      Organization: req.body.Organization,
+      qualification: {
+        _id: qualification._id,
+        name: qualification.name,
+      },
 
-    availableTime: req.body.availableTime,
-    availableDays: req.body.availableDays,
+      // availabilityFrom: req.body.availabilityFrom,
+      // availabilityTo: req.body.availabilityTo,
 
-    // availabileDayFrom: req.body.availabileDayFrom,
-    // availabileDayTo: req.body.availabileDayTo,
-    // email: req.body.email,
-    phone: req.body.phone,
+      availableTime: req.body.availableTime,
+      availableDays: req.body.availableDays,
 
-    Rating: false,
-    RatingAvgCount: req.body.RatingAvgCount,
-  });
+      // availabileDayFrom: req.body.availabileDayFrom,
+      // availabileDayTo: req.body.availabileDayTo,
+      // email: req.body.email,
+      phone: req.body.phone,
 
-  if (req.query.approvel) {
-    stafff.approvel = req.query.approvel;
-  }
-  try {
-    const staffSaved = await staff.save();
-    res.send(staffSaved);
-  } catch (ex) {
-    return res.status(400).send(ex.details[0].message);
+      Rating: false,
+      RatingAvgCount: req.body.RatingAvgCount,
+    });
+
+    // if (req.query.approvel) {
+    //   stafff.approvel = req.query.approvel;
+    // }
+    try {
+      if (req.body.servicePrice) staff.service = req.body.servicePrice;
+      const staffSaved = await staff.save();
+      res.send(staffSaved);
+    } catch (ex) {
+      return res.status(400).send(ex.details[0].message);
+    }
+  } else {
+    const staff = new Staff({
+      fullName: req.body.fullName,
+      email: req.body.email,
+      // dateOfBirth: req.body.dateOfBirth,
+      staffSpeciality: {
+        _id: service._id,
+        name: service.serviceName,
+        servicePrice: service.servicePrice,
+      },
+      Organization: req.body.Organization,
+      qualification: {
+        _id: qualification._id,
+        name: qualification.name,
+      },
+
+      // availabilityFrom: req.body.availabilityFrom,
+      // availabilityTo: req.body.availabilityTo,
+
+      availableTime: req.body.availableTime,
+      availableDays: req.body.availableDays,
+
+      // availabileDayFrom: req.body.availabileDayFrom,
+      // availabileDayTo: req.body.availabileDayTo,
+      // email: req.body.email,
+      phone: req.body.phone,
+
+      Rating: false,
+      RatingAvgCount: req.body.RatingAvgCount,
+    });
+
+    // if (req.query.approvel) {
+    //   stafff.approvel = req.query.approvel;
+    // }
+    try {
+      if (req.body.servicePrice) staff.service = req.body.servicePrice;
+      const staffSaved = await staff.save();
+      res.send(staffSaved);
+    } catch (ex) {
+      return res.status(400).send(ex.details[0].message);
+    }
   }
 });
 
