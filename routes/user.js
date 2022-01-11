@@ -159,15 +159,20 @@ router.post("/", upload.single("CV"), async (req, res) => {
   );
 
   const OrganizationID = req.body.OrganizationID;
+
   if (OrganizationID) {
     const OrganizationObj = await Organization.findById(
       req.body.OrganizationID
     );
+
     user.Organization = OrganizationObj;
   }
-  user.ResumePath = req.file.path;
-  user.ResumeName = req.file.originalname;
-  user.fileType = req.file.mimetype;
+  if (req.file) {
+    user.ResumePath = req.file.path;
+
+    user.ResumeName = req.file.originalname;
+    user.fileType = req.file.mimetype;
+  }
   // const staffType = await StaffType.findById(req.body.staffTypeID);
   // if (!staffType) return res.status(400).send("Staff Type doesn't exist");
 

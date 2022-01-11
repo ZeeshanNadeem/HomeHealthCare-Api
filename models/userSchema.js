@@ -125,6 +125,7 @@ function validateUser(user) {
     password: Joi.string().min(5).max(255).required(),
     isOrganizationAdmin: Joi.boolean(),
     staffMemberID: Joi.objectId(),
+    uploads: Joi.string(),
     ResumePath: Joi.string(),
     ResumeName: Joi.string(),
     fileType: Joi.string(),
