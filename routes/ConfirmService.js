@@ -4,14 +4,12 @@ const {
   ConfirmService,
   validateUserRequest,
 } = require("../models/ConfirmServiceSchema");
-
 const { Organization } = require("../models/organizationSchema");
+const { ServiceIndependent } = require("../models/IndependentServicesSchema");
 const { Service } = require("../models/servicesSchema");
 const { User } = require("../models/userSchema");
-
 const router = express.Router();
 const mongoose = require("mongoose");
-const { request } = require("express");
 
 router.get("/", async (req, res) => {
   if (req.query.userID) {
@@ -71,7 +69,7 @@ router.post("/", async (req, res) => {
       fullName: req.body.fullName,
       user: user,
       staffMemberAssigned: staffMember,
-      Organization: req.body.Organization,
+      serviceOrganization: req.body.Organization,
       Schedule: req.body.Schedule,
       Service: req.body.Service,
       ServiceNeededTime: req.body.ServiceNeededTime,
@@ -86,7 +84,6 @@ router.post("/", async (req, res) => {
       const requestSaved = await request.save();
       res.send(requestSaved);
     } catch (ex) {
-      console.log("Ex:", ex);
       return res.status(400).send(ex.details[0].message);
     }
   } else {
@@ -108,41 +105,93 @@ router.post("/", async (req, res) => {
         .status(400)
         .send("Organization with the given ID doesn't exist");
 
-    const service = await Service.findById(req.body.ServiceID);
-    if (!service)
-      return res.status(400).send("Service with the given ID doesn't exist");
+    let service = null;
+    service = await Service.findById(req.body.ServiceID);
+    // if (!service)
+    //   return res.status(400).send("Service with the given ID doesn't exist");
 
-    const user = await User.findById(req.body.userID);
-    if (!user)
-      return res.status(404).send("The User doesn't exist with the given ID");
+    if (!service) {
+      service = await ServiceIndependent.findById(req.body.ServiceID);
 
-    // const myArray = req.body.ServiceNeededFrom.split(":");
-    // const sum = parseInt(myArray[0]) + 3;
-    // const ServiceNeededTo_ = sum + ":00";
+      let temp = {};
+      if (service) {
+        temp = {
+          _id: service._id,
+          serviceName: service.serviceName,
+          serviceOrgranization: service.serviceOrganization,
+        };
+      }
 
-    const request = new ConfirmService({
-      fullName: req.body.fullName,
-      user: user,
-      staffMemberAssigned: staffMember,
-      Organization: organization,
-      Service: service,
-      Schedule: req.body.Schedule,
-      ServiceNeededTime: req.body.ServiceNeededTime,
-      // ServiceNeededTo: ServiceNeededTo_,
-      // Recursive: req.body.Recursive,
-      Address: req.body.Address,
-      PhoneNo: req.body.PhoneNo,
-      rated: false,
-      Email: req.body.email,
-      City: req.body.city,
-    });
+      if (!service)
+        return res
+          .status(400)
+          .send("Independent Service  or service doesn't exist");
 
-    try {
-      const requestSaved = await request.save();
-      res.send(requestSaved);
-    } catch (ex) {
-      console.log("EX::", ex);
-      return res.status(400).send(ex.details[0].message);
+      const user = await User.findById(req.body.userID);
+      if (!user)
+        return res.status(404).send("The User doesn't exist with the given ID");
+
+      // const myArray = req.body.ServiceNeededFrom.split(":");
+      // const sum = parseInt(myArray[0]) + 3;
+      // const ServiceNeededTo_ = sum + ":00";
+
+      const request = new ConfirmService({
+        fullName: req.body.fullName,
+        user: user,
+        staffMemberAssigned: staffMember,
+        Organization: organization,
+        Service: temp,
+        Schedule: req.body.Schedule,
+        ServiceNeededTime: req.body.ServiceNeededTime,
+        // ServiceNeededTo: ServiceNeededTo_,
+        // Recursive: req.body.Recursive,
+        Address: req.body.Address,
+        PhoneNo: req.body.PhoneNo,
+        rated: false,
+        Email: req.body.email,
+        City: req.body.city,
+      });
+
+      try {
+        const requestSaved = await request.save();
+        res.send(requestSaved);
+      } catch (ex) {
+        console.log("exx cs::", ex);
+        return res.status(400).send(ex.details[0].message);
+      }
+    } else {
+      const user = await User.findById(req.body.userID);
+      if (!user)
+        return res.status(404).send("The User doesn't exist with the given ID");
+
+      // const myArray = req.body.ServiceNeededFrom.split(":");
+      // const sum = parseInt(myArray[0]) + 3;
+      // const ServiceNeededTo_ = sum + ":00";
+
+      const request = new ConfirmService({
+        fullName: req.body.fullName,
+        user: user,
+        staffMemberAssigned: staffMember,
+        Organization: organization,
+        Service: service,
+        Schedule: req.body.Schedule,
+        ServiceNeededTime: req.body.ServiceNeededTime,
+        // ServiceNeededTo: ServiceNeededTo_,
+        // Recursive: req.body.Recursive,
+        Address: req.body.Address,
+        PhoneNo: req.body.PhoneNo,
+        rated: false,
+        Email: req.body.email,
+        City: req.body.city,
+      });
+
+      try {
+        const requestSaved = await request.save();
+        res.send(requestSaved);
+      } catch (ex) {
+        console.log("exx cs::", ex);
+        return res.status(400).send(ex.details[0].message);
+      }
     }
   }
 });

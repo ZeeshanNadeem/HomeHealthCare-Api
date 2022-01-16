@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const { staffSchema } = require("./staffSchema");
 const { organizationSchema } = require("./organizationSchema");
+const { independentServicesSchema } = require("./IndependentServicesSchema");
 const { servicesSchema } = require("./servicesSchema");
 const { userSchema } = require("./userSchema");
 const { boolean } = require("joi");
@@ -23,9 +24,13 @@ const serviceRequestSchema = new mongoose.Schema({
     required: true,
   },
   Service: {
-    type: servicesSchema,
+    type: servicesSchema || independentServicesSchema,
     required: true,
   },
+  // IndependentService: {
+  //   type: independentServicesSchema ||,
+  //   // required: true,
+  // },
   Schedule: {
     type: String,
     required: true,

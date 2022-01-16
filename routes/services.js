@@ -1,7 +1,10 @@
 const express = require("express");
 const { Service, validateService } = require("../models/servicesSchema");
 const { Organization } = require("../models/organizationSchema");
-
+const {
+  ServiceIndependent,
+  independentServicesSchema,
+} = require("../models/IndependentServicesSchema");
 const { User } = require("../models/userSchema");
 const router = express.Router();
 const auth = require("../middleware/auth");
@@ -14,6 +17,11 @@ router.get("/", paginatedResults(Service), async (req, res) => {
   // res.send(services);
   if (req.query.findServiceByUser) {
     const services = await Service.find({ "user._id": req.query.userID });
+    res.send(services);
+  } else if (req.query.IndependentServiceID) {
+    const services = await Service.find({
+      "IndependentService._id": req.query.IndependentServiceID,
+    });
     res.send(services);
   } else res.json(res.paginatedResults);
 });
@@ -46,24 +54,43 @@ router.post("/", async (req, res) => {
   const organization = await Organization.findById(
     req.body.serviceOrgranization
   );
+
   if (!organization)
     return res.status(400).send("Organization Type doesn't exist");
 
-  const service = new Service({
-    serviceName: req.body.serviceName,
-    serviceOrgranization: organization,
-    servicePrice: req.body.servicePrice,
-  });
   if (req.body.userID) {
+    const serviceGot = await ServiceIndependent.findById(req.body.serviceID);
+    if (!serviceGot)
+      return res.status(400).send("Independent service doesn't exist");
+    const service = new Service({
+      serviceName: serviceGot.serviceName,
+      IndependentService: serviceGot,
+      serviceOrgranization: organization,
+      servicePrice: serviceGot.servicePrice,
+    });
+
     const user = await User.findById(req.body.userID);
     service.user = user;
-  }
 
-  try {
-    const serviceSaved = await service.save();
-    res.send(serviceSaved);
-  } catch (ex) {
-    return res.status(400).send(ex.details[0].message);
+    try {
+      const serviceSaved = await service.save();
+      res.send(serviceSaved);
+    } catch (ex) {
+      return res.status(400).send(ex.details[0].message);
+    }
+  } else {
+    try {
+      const service = new Service({
+        serviceName: req.body.serviceName,
+        serviceOrgranization: organization,
+        servicePrice: req.body.servicePrice,
+      });
+      const serviceSaved = await service.save();
+      res.send(serviceSaved);
+    } catch (ex) {
+      console.log("exxx:", ex);
+      return res.status(400).send(ex.details[0].message);
+    }
   }
 });
 

@@ -16,6 +16,7 @@ const ConfirmService = require("./routes/ConfirmService");
 const user = require("./routes/user");
 const auth = require("./routes/auth");
 const availability = require("./routes/availabilityStatus");
+const indepedentServices = require("./routes/IndependentService");
 const app = express();
 
 if (!config.get("jwtPrivateKey")) {
@@ -36,7 +37,6 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/staff", staff);
-
 app.use("/api/services", services);
 app.use("/api/bookedSlots", bookedSlot);
 app.use("/api/qualification", qualification);
@@ -47,9 +47,10 @@ app.use("/api/userRequests", userRequests);
 app.use("/api/staffLeave", StaffLeave);
 app.use("/api/confirmService", ConfirmService);
 app.use("/api/availablity", availability);
-
 app.use("/api/user", user);
 app.use("/api/auth", auth);
+app.use("/api/independentServices", indepedentServices);
+
 const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 

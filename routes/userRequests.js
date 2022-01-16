@@ -7,11 +7,11 @@ const {
 
 const { Organization } = require("../models/organizationSchema");
 const { Service } = require("../models/servicesSchema");
+const { ServiceIndependent } = require("../models/IndependentServicesSchema");
 const { User } = require("../models/userSchema");
 
 const router = express.Router();
 const mongoose = require("mongoose");
-const { request } = require("express");
 
 router.get("/", async (req, res) => {
   if (req.query.userID) {
@@ -78,7 +78,6 @@ router.post("/", async (req, res) => {
       const requestSaved = await request.save();
       res.send(requestSaved);
     } catch (ex) {
-      console.log("Ex::", ex);
       return res.status(400).send(ex.details[0].message);
     }
   } else if (req.query.assignDuty) {
@@ -134,9 +133,18 @@ router.post("/", async (req, res) => {
         .status(400)
         .send("Organization with the given ID doesn't exist");
 
-    const service = await Service.findById(req.body.ServiceID);
-    if (!service)
-      return res.status(400).send("Service with the given ID doesn't exist");
+    let service = null;
+    service = await Service.findById(req.body.ServiceID);
+    // if (!service)
+    //   return res.status(400).send("Service with the given ID doesn't exist");
+
+    if (!service) {
+      service = await ServiceIndependent.findById(req.body.ServiceID);
+      if (!service)
+        return res
+          .status(400)
+          .send("Independent Service  or service doesn't exist");
+    }
 
     const user = await User.findById(req.body.userID);
     if (!user)

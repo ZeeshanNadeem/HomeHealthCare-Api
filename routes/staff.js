@@ -12,6 +12,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const { Organization } = require("../models/organizationSchema");
 const { Service } = require("../models/servicesSchema");
+const { ServiceIndependent } = require("../models/IndependentServicesSchema");
 
 router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
@@ -55,6 +56,7 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const { error } = validateStaff(req.body);
+
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
@@ -68,15 +70,13 @@ router.post("/", async (req, res) => {
 
   const qualification = await Qualification.findById(req.body.qualificationID);
 
-  const service = await Service.findById(req.body.serviceID);
-  if (!service) return res.status(400).send("Service Type doesn't exist");
-
   if (!qualification)
     return res.status(400).send("The qualification doesn't exist");
 
   if (req.query.signUpOrg) {
-    const org = await Organization.findById(req.body.serviceID);
-    if (!org) return res.status(400).send("Organization doesn't exist");
+    console.log("signUpOrg");
+    const service = await ServiceIndependent.findById(req.body.serviceID);
+    if (!service) return res.status(400).send("Independent service not found");
 
     const staff = new Staff({
       fullName: req.body.fullName,
@@ -118,12 +118,16 @@ router.post("/", async (req, res) => {
     // }
     try {
       if (req.body.servicePrice) staff.service = req.body.servicePrice;
+
       const staffSaved = await staff.save();
       res.send(staffSaved);
     } catch (ex) {
+      console.log("Exxx::", ex);
       return res.status(400).send(ex.details[0].message);
     }
   } else {
+    const service = await Service.findById(req.body.serviceID);
+    if (!service) return res.status(400).send("Service Type doesn't exist");
     const staff = new Staff({
       fullName: req.body.fullName,
       email: req.body.email,
@@ -157,11 +161,13 @@ router.post("/", async (req, res) => {
     // if (req.query.approvel) {
     //   stafff.approvel = req.query.approvel;
     // }
+
     try {
       if (req.body.servicePrice) staff.service = req.body.servicePrice;
       const staffSaved = await staff.save();
       res.send(staffSaved);
     } catch (ex) {
+      console.log("Exx=>:", ex);
       return res.status(400).send(ex.details[0].message);
     }
   }
