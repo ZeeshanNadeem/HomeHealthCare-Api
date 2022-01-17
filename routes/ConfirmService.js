@@ -27,6 +27,7 @@ router.get("/", async (req, res) => {
     res.send(requests);
   }
 });
+
 router.get("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Request not found with the given ID");
@@ -153,6 +154,7 @@ router.post("/", async (req, res) => {
       });
 
       try {
+        console.log("confirm::", request);
         const requestSaved = await request.save();
         res.send(requestSaved);
       } catch (ex) {

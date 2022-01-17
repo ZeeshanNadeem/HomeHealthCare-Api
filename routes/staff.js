@@ -164,6 +164,7 @@ router.post("/", async (req, res) => {
 
     try {
       if (req.body.servicePrice) staff.service = req.body.servicePrice;
+
       const staffSaved = await staff.save();
       res.send(staffSaved);
     } catch (ex) {
