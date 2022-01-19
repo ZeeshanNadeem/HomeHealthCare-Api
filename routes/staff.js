@@ -128,6 +128,7 @@ router.post("/", async (req, res) => {
   } else {
     const service = await Service.findById(req.body.serviceID);
     if (!service) return res.status(400).send("Service Type doesn't exist");
+    console.log("service::", service);
     const staff = new Staff({
       fullName: req.body.fullName,
       email: req.body.email,

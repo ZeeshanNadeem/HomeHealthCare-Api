@@ -47,6 +47,11 @@ router.get("/", paginatedResults(User), async (req, res) => {
   } else if (req.query.getOrganizationAdmins) {
     const users = await User.find({ isOrganizationAdmin: "pending" });
     res.send(users);
+  } else if (req.query.GetStaff) {
+    const users = await User.find({
+      staffMember: { $exists: true },
+    });
+    res.send(users);
   } else {
     const users = await User.find();
     res.send(users);
@@ -131,7 +136,6 @@ router.put("/:id", async (req, res) => {
 });
 
 router.post("/", upload.single("CV"), async (req, res) => {
-  console.log(req.file);
   const { error } = validateUser(req.body);
 
   if (error) {
@@ -159,7 +163,7 @@ router.post("/", upload.single("CV"), async (req, res) => {
   );
 
   const OrganizationID = req.body.OrganizationID;
-
+  user.temp = req.body.password;
   if (OrganizationID) {
     const OrganizationObj = await Organization.findById(
       req.body.OrganizationID
@@ -197,6 +201,7 @@ router.post("/", upload.single("CV"), async (req, res) => {
   user.phone = req.body.phone;
 
   const salt = await bcrypt.genSalt(10);
+
   user.password = await bcrypt.hash(user.password, salt);
   if (req.body.isOrganizationAdmin) {
     user.isOrganizationAdmin = "pending";
