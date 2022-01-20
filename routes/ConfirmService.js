@@ -71,6 +71,7 @@ router.post("/", async (req, res) => {
       user: user,
       staffMemberAssigned: staffMember,
       serviceOrganization: req.body.Organization,
+      VaccinationPlan: req.body.vaccination,
       Schedule: req.body.Schedule,
       Service: req.body.Service,
       ServiceNeededTime: req.body.ServiceNeededTime,
@@ -141,6 +142,7 @@ router.post("/", async (req, res) => {
         user: user,
         staffMemberAssigned: staffMember,
         Organization: organization,
+        VaccinationPlan: req.body.vaccination,
         Service: temp,
         Schedule: req.body.Schedule,
         ServiceNeededTime: req.body.ServiceNeededTime,
@@ -154,11 +156,9 @@ router.post("/", async (req, res) => {
       });
 
       try {
-        console.log("confirm::", request);
         const requestSaved = await request.save();
         res.send(requestSaved);
       } catch (ex) {
-        console.log("exx cs::", ex);
         return res.status(400).send(ex.details[0].message);
       }
     } else {
@@ -175,6 +175,7 @@ router.post("/", async (req, res) => {
         user: user,
         staffMemberAssigned: staffMember,
         Organization: organization,
+        VaccinationPlan: req.body.vaccination,
         Service: service,
         Schedule: req.body.Schedule,
         ServiceNeededTime: req.body.ServiceNeededTime,
@@ -191,7 +192,6 @@ router.post("/", async (req, res) => {
         const requestSaved = await request.save();
         res.send(requestSaved);
       } catch (ex) {
-        console.log("exx cs::", ex);
         return res.status(400).send(ex.details[0].message);
       }
     }

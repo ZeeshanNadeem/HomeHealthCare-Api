@@ -202,6 +202,7 @@ router.put("/:id", async (req, res) => {
       staffSpeciality: {
         _id: service._id,
         name: service.serviceName,
+        servicePrice: service.servicePrice,
       },
       qualification: qualification,
 

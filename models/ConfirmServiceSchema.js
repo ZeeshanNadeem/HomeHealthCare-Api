@@ -67,6 +67,9 @@ const serviceRequestSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  VaccinationPlan: {
+    type: Boolean,
+  },
 });
 
 const ConfirmService = mongoose.model("ConfirmService", serviceRequestSchema);
@@ -77,8 +80,9 @@ function validateUserRequest(name) {
     userID: Joi.objectId().required(),
     staffMemberID: Joi.objectId().required(),
     OrganizationID: Joi.objectId().required(),
+
+    vaccination: Joi.boolean(),
     ServiceNeededTime: Joi.string().required(),
-    // ServiceNeededTo: Joi.string().required(),
     ServiceID: Joi.objectId().required(),
     Schedule: Joi.string().required(),
     // Recursive: Joi.boolean().required(),

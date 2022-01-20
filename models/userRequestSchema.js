@@ -59,6 +59,9 @@ const userRequestSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  VaccinationPlan: {
+    type: Boolean,
+  },
 });
 
 const UserRequest = mongoose.model("UserRequests", userRequestSchema);
@@ -70,6 +73,7 @@ function validateUserRequest(name) {
     staffMemberID: Joi.objectId().required(),
     OrganizationID: Joi.objectId().required(),
     ServiceNeededTime: Joi.string().required(),
+    vaccination: Joi.boolean(),
     // ServiceNeededTo: Joi.string().required(),
     ServiceID: Joi.objectId().required(),
     Schedule: Joi.string().required(),
