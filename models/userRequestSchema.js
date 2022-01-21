@@ -62,6 +62,9 @@ const userRequestSchema = new mongoose.Schema({
   VaccinationPlan: {
     type: Boolean,
   },
+  NotificationViewed: {
+    type: Boolean,
+  },
 });
 
 const UserRequest = mongoose.model("UserRequests", userRequestSchema);
@@ -82,6 +85,7 @@ function validateUserRequest(name) {
     PhoneNo: Joi.number().required(),
     email: Joi.string().min(5).max(255).required().email(),
     city: Joi.string().required(),
+    NotificationViewed: Joi.string(),
   });
   return schema.validate(name);
 }

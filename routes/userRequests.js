@@ -24,6 +24,12 @@ router.get("/", async (req, res) => {
       "staffMemberAssigned._id": req.query.staffMemberId,
     });
     res.send(requests);
+  } else if (req.query.vacPlan) {
+    const requests = await UserRequest.find({
+      "user._id": req.query.userID,
+      VaccinationPlan: true,
+    });
+    res.send(requests);
   } else {
     const requests = await UserRequest.find();
     res.send(requests);
