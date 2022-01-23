@@ -79,6 +79,7 @@ router.post("/", async (req, res) => {
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
       rated: req.body.rated,
+      NotificationViewed: false,
     });
 
     try {
@@ -114,6 +115,7 @@ router.post("/", async (req, res) => {
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
       rated: false,
+      NotificationViewed: false,
     });
 
     try {
@@ -175,9 +177,11 @@ router.post("/", async (req, res) => {
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
-      rated: false,
+
       Email: req.body.email,
       City: req.body.city,
+      rated: false,
+      NotificationViewed: false,
     });
 
     try {
@@ -267,6 +271,25 @@ router.patch("/", async (req, res) => {
 
       res.send(userRequest);
     }
+  } else if (req.query.notification) {
+    const userRequest = await UserRequest.findByIdAndUpdate(
+      req.query.userReqID,
+      {
+        $set: {
+          NotificationViewed: true,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!userRequest)
+      return res
+        .status(404)
+        .send("User Request with the given ID was not found.");
+
+    res.send(userRequest);
   }
 });
 module.exports = router;
