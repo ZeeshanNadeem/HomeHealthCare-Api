@@ -30,6 +30,12 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
       { "availableDays.value": true },
     ]);
     res.send(staff);
+  } else if (req.query.findStaffOnOrg) {
+    const staff = await Staff.find({
+      "staffSpeciality._id": req.query.service,
+      "Organization._id": req.query.organization,
+    });
+    res.send(staff);
   } else {
     res.json(res.paginatedResults);
   }
