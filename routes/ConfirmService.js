@@ -79,6 +79,7 @@ router.post("/", async (req, res) => {
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
+
       rated: false,
     });
 
@@ -186,6 +187,7 @@ router.post("/", async (req, res) => {
         rated: false,
         Email: req.body.email,
         City: req.body.city,
+        totalMeetingsRequested: req.body.totalMeetingsRequested,
       });
 
       try {

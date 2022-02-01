@@ -69,6 +69,9 @@ const staffSchema = new mongoose.Schema({
   servicePrice: {
     type: String,
   },
+  availableNow: {
+    type: String,
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);
@@ -89,6 +92,7 @@ function validateStaff(Staff) {
     Rating: Joi.number().required(),
     RatingAvgCount: Joi.number().required(),
     servicePrice: Joi.string(),
+    availableNow: Joi.string(),
   });
   return schema.validate(Staff);
 }

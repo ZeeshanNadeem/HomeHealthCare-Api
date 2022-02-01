@@ -18,23 +18,28 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
   // res.send(staff);
 
-  if (req.query.day && req.query.service) {
-    // if (req.query.day.toUpperCase() === "SUNDAY") {
-    //   res.send("Sunday's service not available");
-    // }
-    const staff = await Staff.find({
-      "staffSpeciality._id": req.query.service,
-      "Organization._id": req.query.organization,
-    }).and([
-      { "availableDays.name": req.query.day },
-      { "availableDays.value": true },
-    ]);
-    res.send(staff);
-  } else if (req.query.findStaffOnOrg) {
+  if (req.query.findStaffOnOrg) {
+    console.log("2");
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
     });
+    res.send(staff);
+  } else if (req.query.day && req.query.service) {
+    // if (req.query.day.toUpperCase() === "SUNDAY") {
+    //   res.send("Sunday's service not available");
+    // }
+    console.log("1");
+
+    console.log("req.query.service::", req.query.service);
+    console.log("req.query.organization::", req.query.organization);
+    console.log("req.query.day::", req.query.day);
+    const staff = await Staff.find({
+      "staffSpeciality._id": req.query.service,
+      "Organization._id": req.query.organization,
+    }).and([{ availableDays: { name: req.query.day, value: true } }]);
+
+    // db.inventory.find({ instock: { warehouse: "A", qty: 5 } });
     res.send(staff);
   } else {
     res.json(res.paginatedResults);

@@ -70,6 +70,9 @@ const serviceRequestSchema = new mongoose.Schema({
   VaccinationPlan: {
     type: Boolean,
   },
+  totalMeetingsRequested: {
+    type: Number,
+  },
 });
 
 const ConfirmService = mongoose.model("ConfirmService", serviceRequestSchema);
@@ -90,6 +93,7 @@ function validateUserRequest(name) {
     PhoneNo: Joi.number().required(),
     email: Joi.string().min(5).max(255).required().email(),
     city: Joi.string().required(),
+    totalMeetingsRequested: Joi.number(),
   });
   return schema.validate(name);
 }
