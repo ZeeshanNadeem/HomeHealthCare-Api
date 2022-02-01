@@ -52,6 +52,11 @@ router.get("/", paginatedResults(User), async (req, res) => {
       staffMember: { $exists: true },
     });
     res.send(users);
+  } else if (req.query.findUser_) {
+    const user = await User.findOne({ _id: req.query.findUser_ });
+    if (!user) return res.status(404).send("User not found with the given ID");
+
+    res.send(user);
   } else {
     const users = await User.find();
     res.send(users);
@@ -236,6 +241,7 @@ router.delete("/:id", async (req, res) => {
 router.get("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("User not found with the given ID");
+
   const user = await User.findOne({ "staffMember._id": req.params.id });
   if (!user) return res.status(404).send("User not found with the given ID");
 
