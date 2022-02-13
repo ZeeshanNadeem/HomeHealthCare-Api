@@ -290,6 +290,11 @@ router.patch("/", async (req, res) => {
         .send("User Request with the given ID was not found.");
 
     res.send(userRequest);
+  } else if (req.query.getPatientAppointmentsID) {
+    const appointments = await UserRequest.find({
+      "user._id": req.query.getPatientAppointmentsID,
+    });
+    res.send(appointments);
   }
 });
 module.exports = router;
