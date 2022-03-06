@@ -169,12 +169,24 @@ router.post("/", upload.single("CV"), async (req, res) => {
 
   const OrganizationID = req.body.OrganizationID;
   user.temp = req.body.password;
+
+  if (req.body.lat && req.body.lng) {
+    user.lat = req.body.lat;
+    user.lng = req.body.lng;
+  }
+
   if (OrganizationID) {
     const OrganizationObj = await Organization.findById(
       req.body.OrganizationID
     );
 
     user.Organization = OrganizationObj;
+  }
+  if (req.body.isAppAdmin) {
+    user.isAppAdmin = req.body.isAppAdmin;
+  }
+  if (req.body.city) {
+    user.city = req.body.city;
   }
   if (req.file) {
     user.ResumePath = req.file.path;

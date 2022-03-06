@@ -72,6 +72,15 @@ const staffSchema = new mongoose.Schema({
   availableNow: {
     type: String,
   },
+  city: {
+    type: String,
+  },
+  lat: {
+    type: Number,
+  },
+  lng: {
+    type: Number,
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);
@@ -79,10 +88,9 @@ const Staff = mongoose.model("Staff", staffSchema);
 function validateStaff(Staff) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
-
+    city: Joi.string(),
     serviceID: Joi.objectId().required(),
     qualificationID: Joi.objectId().required(),
-
     availableTime: Joi.array().required(),
     availableDays: Joi.array().required(),
     email: Joi.string().required(),
@@ -93,6 +101,8 @@ function validateStaff(Staff) {
     RatingAvgCount: Joi.number().required(),
     servicePrice: Joi.string(),
     availableNow: Joi.string(),
+    lat: Joi.number(),
+    lng: Joi.number(),
   });
   return schema.validate(Staff);
 }

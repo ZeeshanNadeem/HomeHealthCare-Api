@@ -24,7 +24,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
       "Organization._id": req.query.organization,
     });
     res.send(staff);
-  } else if (req.query.day && req.query.service) {
+  } else if (req.query.day && req.query.service && !req.query.allStaff) {
     // if (req.query.day.toUpperCase() === "SUNDAY") {
     //   res.send("Sunday's service not available");
     // }
@@ -32,9 +32,18 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
+      city: req.query.city,
     }).and([{ availableDays: { name: req.query.day, value: true } }]);
 
     // db.inventory.find({ instock: { warehouse: "A", qty: 5 } });
+    res.send(staff);
+  } else if (req.query.allStaff) {
+    const staff = await Staff.find({
+      "staffSpeciality._id": req.query.service,
+      "Organization._id": req.query.organization,
+      city: req.query.city,
+    });
+
     res.send(staff);
   } else {
     res.json(res.paginatedResults);
@@ -80,7 +89,6 @@ router.post("/", async (req, res) => {
     return res.status(400).send("The qualification doesn't exist");
 
   if (req.query.signUpOrg) {
-    console.log("signUpOrg");
     const service = await ServiceIndependent.findById(req.body.serviceID);
     if (!service) return res.status(400).send("Independent service not found");
 
@@ -103,6 +111,7 @@ router.post("/", async (req, res) => {
         _id: qualification._id,
         name: qualification.name,
       },
+      city: req.body.city,
 
       // availabilityFrom: req.body.availabilityFrom,
       // availabilityTo: req.body.availabilityTo,
@@ -149,7 +158,7 @@ router.post("/", async (req, res) => {
         _id: qualification._id,
         name: qualification.name,
       },
-
+      city: req.body.city,
       // availabilityFrom: req.body.availabilityFrom,
       // availabilityTo: req.body.availabilityTo,
 
@@ -163,6 +172,8 @@ router.post("/", async (req, res) => {
 
       Rating: false,
       RatingAvgCount: req.body.RatingAvgCount,
+      lat: req.body.lat,
+      lng: req.body.lng,
     });
 
     // if (req.query.approvel) {
