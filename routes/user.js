@@ -154,7 +154,9 @@ router.post("/", upload.single("CV"), async (req, res) => {
 
   user = new User(
     _.pick(req.body, [
-      "fullName",
+      "firstName",
+      "lastName",
+      "username",
       "dateOfBirth",
       "email",
       "password",
