@@ -83,10 +83,16 @@ const userSchema = new mongoose.Schema({
   },
   lat: {
     type: Number,
+    
   },
   lng: {
     type: Number,
+   
   },
+  radius:{
+    type:Number,
+   
+  }
 
   // staffType: {
   //   type: staffTypeSchema,
@@ -138,6 +144,7 @@ userSchema.methods.generateAuthToken = function () {
       city: this.city,
       lat: this.lat,
       lng: this.lng,
+      radius:this.radius
     },
     config.get("jwtPrivateKey")
   );
@@ -167,6 +174,7 @@ function validateUser(user) {
     RatingAvgCount: Joi.number(),
     lat: Joi.number(),
     lng: Joi.number(),
+    radius:Joi.number()
   });
   return schema.validate(user);
 }

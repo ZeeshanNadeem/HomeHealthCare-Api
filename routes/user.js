@@ -172,10 +172,7 @@ router.post("/", upload.single("CV"), async (req, res) => {
   const OrganizationID = req.body.OrganizationID;
   user.temp = req.body.password;
 
-  if (req.body.lat && req.body.lng) {
-    user.lat = req.body.lat;
-    user.lng = req.body.lng;
-  }
+ 
 
   if (OrganizationID) {
     const OrganizationObj = await Organization.findById(
@@ -195,6 +192,11 @@ router.post("/", upload.single("CV"), async (req, res) => {
 
     user.ResumeName = req.file.originalname;
     user.fileType = req.file.mimetype;
+  }
+  if(req.body.lat && req.body.lng && req.body.radius){
+    user.lat=req.body.lat,
+    user.lng=req.body.lng,
+    user.radius=req.body.radius
   }
   // const staffType = await StaffType.findById(req.body.staffTypeID);
   // if (!staffType) return res.status(400).send("Staff Type doesn't exist");

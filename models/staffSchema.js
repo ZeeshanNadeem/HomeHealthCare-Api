@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const { qualificationSchema } = require("./qualificationSchema");
 const { organizationSchema } = require("./organizationSchema");
-
+// const { userSchema } = require("./userSchema");
 const { staffTypeSchema } = require("./StaffTypeSchema");
 
 const staffSchema = new mongoose.Schema({
@@ -81,6 +81,10 @@ const staffSchema = new mongoose.Schema({
   lng: {
     type: Number,
   },
+  // user:{
+  //   type:userSchema,
+  //   required:true
+  // }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);
@@ -103,6 +107,7 @@ function validateStaff(Staff) {
     availableNow: Joi.string(),
     lat: Joi.number(),
     lng: Joi.number(),
+    // userID:Joi.string().required()
   });
   return schema.validate(Staff);
 }

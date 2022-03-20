@@ -14,6 +14,7 @@ const { Organization } = require("../models/organizationSchema");
 const { Service } = require("../models/servicesSchema");
 const { ServiceIndependent } = require("../models/IndependentServicesSchema");
 
+
 router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
   // res.send(staff);
@@ -90,6 +91,8 @@ router.post("/", async (req, res) => {
 
   if (req.query.signUpOrg) {
     const service = await ServiceIndependent.findById(req.body.serviceID);
+    // const user =await User.findById(req.body.userID);
+    // if (!user) return res.status(400).send("user ID not found")
     if (!service) return res.status(400).send("Independent service not found");
 
     const staff = new Staff({
@@ -126,6 +129,7 @@ router.post("/", async (req, res) => {
 
       Rating: false,
       RatingAvgCount: req.body.RatingAvgCount,
+      // user:user
     });
 
     // if (req.query.approvel) {
