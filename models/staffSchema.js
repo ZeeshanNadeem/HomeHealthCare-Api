@@ -81,6 +81,9 @@ const staffSchema = new mongoose.Schema({
   lng: {
     type: Number,
   },
+  radius:{
+    type:Number
+  }
   // user:{
   //   type:userSchema,
   //   required:true
@@ -107,6 +110,7 @@ function validateStaff(Staff) {
     availableNow: Joi.string(),
     lat: Joi.number(),
     lng: Joi.number(),
+    radius:Joi.number()
     // userID:Joi.string().required()
   });
   return schema.validate(Staff);

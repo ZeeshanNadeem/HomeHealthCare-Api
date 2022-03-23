@@ -7,13 +7,57 @@ const { User } = require("../models/userSchema");
 
 const { Qualification } = require("../models/qualificationSchema");
 
-const { StaffType } = require("../models/StaffTypeSchema");
+
 const router = express.Router();
 const mongoose = require("mongoose");
-const { Organization } = require("../models/organizationSchema");
+
 const { Service } = require("../models/servicesSchema");
 const { ServiceIndependent } = require("../models/IndependentServicesSchema");
 
+
+const distance = (lat1, lon1,staff) => {
+  // The math module contains a function
+  // named toRadians which converts from
+  // degrees to radians.
+
+  // lon1 = (lon1 * Math.PI) / 180;
+  //   lon2 = (lon2 * Math.PI) / 180;
+  //   lat1 = (lat1 * Math.PI) / 180;
+  //   lat2 = (lat2 * Math.PI) / 180;
+
+
+  lon1 = (lon1 * Math.PI) / 180;
+  lat1 = (lat1 * Math.PI) / 180;
+  let staffInRadius=[];
+  for(let i=0;i<staff.length;i++){
+
+    
+  let lon2 = (staff[i].lng * Math.PI) / 180;
+    
+  let lat2 = (staff[i].lat * Math.PI) / 180;
+  
+    // Haversine formula
+    let dlon = lon2 - lon1;
+    let dlat = lat2 - lat1;
+    let a =
+      Math.pow(Math.sin(dlat / 2), 2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+  
+    let c = 2 * Math.asin(Math.sqrt(a));
+  
+    // Radius of earth in kilometers. Use 3956
+    // for miles
+    let r = 6371;
+  
+    // calculate the result
+    let radiusFound= c * r;
+    if(radiusFound<=staff[i].radius){
+      staffInRadius.push(staff[i]);
+    }
+  }
+
+  return staffInRadius;
+};
 
 router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
@@ -26,19 +70,19 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     });
     res.send(staff);
   } else if (req.query.day && req.query.service && !req.query.allStaff) {
-    // if (req.query.day.toUpperCase() === "SUNDAY") {
-    //   res.send("Sunday's service not available");
-    // }
-
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
       city: req.query.city,
     }).and([{ availableDays: { name: req.query.day, value: true } }]);
 
+    const staffBetweenRadius= distance(req.query.lat,req.query.lng,staff)
+   
+    
     // db.inventory.find({ instock: { warehouse: "A", qty: 5 } });
-    res.send(staff);
+    res.send(staffBetweenRadius);
   } else if (req.query.allStaff) {
+   
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
@@ -121,6 +165,9 @@ router.post("/", async (req, res) => {
 
       availableTime: req.body.availableTime,
       availableDays: req.body.availableDays,
+      lat:req.body.lat,
+      lng:req.body.lng,
+      radius:req.body.radius,
 
       // availabileDayFrom: req.body.availabileDayFrom,
       // availabileDayTo: req.body.availabileDayTo,
@@ -178,6 +225,7 @@ router.post("/", async (req, res) => {
       RatingAvgCount: req.body.RatingAvgCount,
       lat: req.body.lat,
       lng: req.body.lng,
+      radius:req.body.radius
     });
 
     // if (req.query.approvel) {
