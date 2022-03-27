@@ -159,36 +159,23 @@ router.post("/", async (req, res) => {
         name: qualification.name,
       },
       city: req.body.city,
-
-      // availabilityFrom: req.body.availabilityFrom,
-      // availabilityTo: req.body.availabilityTo,
-
       availableTime: req.body.availableTime,
       availableDays: req.body.availableDays,
-      lat:req.body.lat,
-      lng:req.body.lng,
-      radius:req.body.radius,
-
-      // availabileDayFrom: req.body.availabileDayFrom,
-      // availabileDayTo: req.body.availabileDayTo,
-      // email: req.body.email,
+      locations:req.body.locations,
       phone: req.body.phone,
-
       Rating: false,
       RatingAvgCount: req.body.RatingAvgCount,
-      // user:user
+     
     });
 
-    // if (req.query.approvel) {
-    //   stafff.approvel = req.query.approvel;
-    // }
+   
     try {
       if (req.body.servicePrice) staff.service = req.body.servicePrice;
 
       const staffSaved = await staff.save();
       res.send(staffSaved);
     } catch (ex) {
-      console.log("Exxx::", ex);
+     
       return res.status(400).send(ex.details[0].message);
     }
   } else {
@@ -198,7 +185,7 @@ router.post("/", async (req, res) => {
     const staff = new Staff({
       fullName: req.body.fullName,
       email: req.body.email,
-      // dateOfBirth: req.body.dateOfBirth,
+
       staffSpeciality: {
         _id: service._id,
         name: service.serviceName,
@@ -210,35 +197,27 @@ router.post("/", async (req, res) => {
         name: qualification.name,
       },
       city: req.body.city,
-      // availabilityFrom: req.body.availabilityFrom,
-      // availabilityTo: req.body.availabilityTo,
-
+   
       availableTime: req.body.availableTime,
       availableDays: req.body.availableDays,
 
-      // availabileDayFrom: req.body.availabileDayFrom,
-      // availabileDayTo: req.body.availabileDayTo,
-      // email: req.body.email,
+     
       phone: req.body.phone,
 
       Rating: false,
       RatingAvgCount: req.body.RatingAvgCount,
-      lat: req.body.lat,
-      lng: req.body.lng,
-      radius:req.body.radius
+      locations: req.body.locations,
+     
     });
 
-    // if (req.query.approvel) {
-    //   stafff.approvel = req.query.approvel;
-    // }
-
+   
     try {
       if (req.body.servicePrice) staff.service = req.body.servicePrice;
 
       const staffSaved = await staff.save();
       res.send(staffSaved);
     } catch (ex) {
-      console.log("Exx=>:", ex);
+     
       return res.status(400).send(ex.details[0].message);
     }
   }

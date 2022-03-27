@@ -81,18 +81,11 @@ const userSchema = new mongoose.Schema({
   city: {
     type: String,
   },
-  lat: {
-    type: Number,
+  locations: {
+    type: Array,
     
   },
-  lng: {
-    type: Number,
-   
-  },
-  radius:{
-    type:Number,
-   
-  }
+ 
 
   // staffType: {
   //   type: staffTypeSchema,
@@ -142,9 +135,8 @@ userSchema.methods.generateAuthToken = function () {
       Rating: this.Rating,
       RatingAvgCount: this.RatingAvgCount,
       city: this.city,
-      lat: this.lat,
-      lng: this.lng,
-      radius:this.radius
+      locations: this.locations,
+      
     },
     config.get("jwtPrivateKey")
   );
@@ -156,8 +148,7 @@ const User = mongoose.model("User", userSchema);
 function validateUser(user) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
-    // lastName: Joi.string().min(5).max(50).required(),
-    // username: Joi.string().min(5).max(50).required(),
+   
     dateOfBirth: Joi.string(),
     city: Joi.string(),
     email: Joi.string().min(5).max(255).required().email(),
@@ -172,9 +163,8 @@ function validateUser(user) {
     OrganizationID: Joi.string(),
     Rating: Joi.number(),
     RatingAvgCount: Joi.number(),
-    lat: Joi.number(),
-    lng: Joi.number(),
-    radius:Joi.number()
+    locations: Joi.array(),
+    
   });
   return schema.validate(user);
 }

@@ -75,15 +75,10 @@ const staffSchema = new mongoose.Schema({
   city: {
     type: String,
   },
-  lat: {
-    type: Number,
+  locations: {
+    type: Array,
   },
-  lng: {
-    type: Number,
-  },
-  radius:{
-    type:Number
-  }
+ 
   // user:{
   //   type:userSchema,
   //   required:true
@@ -108,9 +103,7 @@ function validateStaff(Staff) {
     RatingAvgCount: Joi.number().required(),
     servicePrice: Joi.string(),
     availableNow: Joi.string(),
-    lat: Joi.number(),
-    lng: Joi.number(),
-    radius:Joi.number()
+    locations:Joi.array()
     // userID:Joi.string().required()
   });
   return schema.validate(Staff);
