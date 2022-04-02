@@ -25,16 +25,21 @@ const distance = (lat1, lon1,staff) => {
   //   lat1 = (lat1 * Math.PI) / 180;
   //   lat2 = (lat2 * Math.PI) / 180;
 
-
+  console.log("staff::",staff);
   lon1 = (lon1 * Math.PI) / 180;
   lat1 = (lat1 * Math.PI) / 180;
   let staffInRadius=[];
+ 
   for(let i=0;i<staff.length;i++){
 
+   
+  for(let j=0;j<staff[i].locations.length;j++){
+  
+   
+   
+  let lon2 =  (staff[i].locations[j].lng * Math.PI) / 180;
     
-  let lon2 = (staff[i].lng * Math.PI) / 180;
-    
-  let lat2 = (staff[i].lat * Math.PI) / 180;
+  let lat2 = (staff[i].locations[j].lat * Math.PI) / 180;
   
     // Haversine formula
     let dlon = lon2 - lon1;
@@ -51,10 +56,14 @@ const distance = (lat1, lon1,staff) => {
   
     // calculate the result
     let radiusFound= c * r;
-    if(radiusFound<=staff[i].radius){
-      staffInRadius.push(staff[i]);
+    
+  
+    if(parseInt(radiusFound)<=  parseInt(staff[i].locations[j].radius)){
+      if(!(staffInRadius.includes(staff[i])))
+         staffInRadius.push(staff[i]);
     }
   }
+}
 
   return staffInRadius;
 };

@@ -76,8 +76,8 @@ const staffSchema = new mongoose.Schema({
     type: String,
   },
   locations: {
-    type: Array,
-  },
+  type:[Object]
+  }
  
   // user:{
   //   type:userSchema,

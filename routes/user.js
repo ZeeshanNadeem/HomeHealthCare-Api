@@ -197,26 +197,13 @@ router.post("/", upload.single("CV"), async (req, res) => {
     user.locations=req.body.locations
 
   }
-  // const staffType = await StaffType.findById(req.body.staffTypeID);
-  // if (!staffType) return res.status(400).send("Staff Type doesn't exist");
-
-  // const qualification = await Qualification.findById(req.body.qualificationID);
-
-  // if (!qualification)
-  //   return res.status(400).send("The qualification doesn't exist");
+  
 
   const staff = await Staff.findById(req.body.staffMemberID);
   if (staff) {
     user.staffMember = staff;
   }
 
-  // user.staffType = { _id: staffType._id, name: staffType.name };
-  // user.qualification = { _id: qualification._id, name: qualification.name };
-
-  // user.availabilityFrom = req.body.availabilityFrom;
-  // user.availabilityTo = req.body.availabilityTo;
-  // user.availabileDayFrom = req.body.availabileDayFrom;
-  // user.availabileDayTo = req.body.availabileDayTo;
 
   user.phone = req.body.phone;
 
