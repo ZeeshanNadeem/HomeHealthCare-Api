@@ -141,10 +141,22 @@ router.put("/:id", async (req, res) => {
 });
 
 router.post("/", upload.single("CV"), async (req, res) => {
+
+  if(req.query.indepedentServiceProvider){
+      req.body.locations=JSON.parse(req.body.locations)
+      const { error } = validateUser(req.body);
+  
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+  }
+  else{
   const { error } = validateUser(req.body);
+  
 
   if (error) {
     return res.status(400).send(error.details[0].message);
+  }
   }
 
   let user = await User.findOne({ email: req.body.email });

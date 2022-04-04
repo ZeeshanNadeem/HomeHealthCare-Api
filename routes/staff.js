@@ -58,7 +58,7 @@ const distance = (lat1, lon1,staff) => {
     let radiusFound= c * r;
     
   
-    if(parseInt(radiusFound)<=  parseInt(staff[i].locations[j].radius)){
+    if(parseInt(radiusFound)<= parseInt(staff[i].locations[j].radius)){
       if(!(staffInRadius.includes(staff[i])))
          staffInRadius.push(staff[i]);
     }

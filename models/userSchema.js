@@ -11,20 +11,20 @@ const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: true,
-    minlength: 5,
-    maxlength: 50,
+    // minlength: 5,
+    // maxlength: 50,
   },
   lastName: {
     type: String,
     // required: true,
-    minlength: 5,
-    maxlength: 50,
+    // minlength: 5,
+    // maxlength: 50,
   },
   username: {
     type: String,
     // required: true,
-    minlength: 5,
-    maxlength: 50,
+    // minlength: 5,
+    // maxlength: 50,
   },
   dateOfBirth: {
     type: String,
@@ -81,10 +81,9 @@ const userSchema = new mongoose.Schema({
   city: {
     type: String,
   },
-  locations: {
-    type: Array,
-    
-  },
+ locations: {
+  type:[Object]
+  }
  
 
   // staffType: {
@@ -148,7 +147,6 @@ const User = mongoose.model("User", userSchema);
 function validateUser(user) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
-   
     dateOfBirth: Joi.string(),
     city: Joi.string(),
     email: Joi.string().min(5).max(255).required().email(),
