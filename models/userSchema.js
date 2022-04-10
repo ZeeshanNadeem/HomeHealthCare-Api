@@ -136,6 +136,7 @@ userSchema.methods.generateAuthToken = function () {
       city: this.city,
       locations: this.locations,
       
+      
     },
     config.get("jwtPrivateKey")
   );

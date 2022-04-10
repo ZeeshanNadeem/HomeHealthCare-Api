@@ -271,12 +271,13 @@ router.put("/:id", async (req, res) => {
 
       // availabileDayFrom: req.body.availabileDayFrom,
       // availabileDayTo: req.body.availabileDayTo,
-      Organization: req.body.Organization,
+      // Organization: req.body.Organization,
 
       // email: req.body.email,
       phone: req.body.phone,
-      Rating: req.body.Rating,
-      RatingAvgCount: req.body.RatingAvgCount,
+
+      // Rating: req.body.Rating,
+      // RatingAvgCount: req.body.RatingAvgCount,
     },
     {
       new: true,
