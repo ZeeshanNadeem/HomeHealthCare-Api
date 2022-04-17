@@ -9,6 +9,12 @@ const mongoose = require("mongoose");
 router.get("/", paginatedResults(Organization), async (req, res) => {
   // const organization = await Organization.find();
 
+  if(req.query.getIndependentOrg){
+        const organizations=await Organization.find();
+        let temp=organizations.filter(x=>x.name.toUpperCase().includes("INDEPENDENT"));
+        res.send(temp);
+  }
+  else
   res.json(res.paginatedResults);
 });
 

@@ -78,7 +78,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
       "Organization._id": req.query.organization,
     });
     res.send(staff);
-  } else if (req.query.day && req.query.service && !req.query.allStaff) {
+  } else if (req.query.day && req.query.service && !req.query.allStaff && !req.query.ignoreCity) {
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
@@ -99,7 +99,16 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     });
 
     res.send(staff);
-  } else {
+  } 
+  else if(req.query.day && req.query.service && !req.query.allStaff && req.query.ignoreCity){
+    const staff = await Staff.find({
+      "staffSpeciality._id": req.query.service,
+      "Organization._id": req.query.organization,
+     
+    }).and([{ availableDays: { name: req.query.day, value: true } }]);
+    res.send(staff);
+  }
+  else {
     res.json(res.paginatedResults);
   }
 });
