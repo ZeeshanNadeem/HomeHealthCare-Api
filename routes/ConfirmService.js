@@ -78,6 +78,8 @@ router.post("/", async (req, res) => {
       // ServiceNeededTo: req.body.ServiceNeededTo,
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
+      lat:req.body.lat,
+      lng:req.body.lng,
       PhoneNo: req.body.PhoneNo,
 
       rated: false,

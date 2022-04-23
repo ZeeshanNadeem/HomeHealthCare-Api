@@ -79,6 +79,8 @@ router.post("/", async (req, res) => {
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
       rated: req.body.rated,
+      lat:req.body.lat,
+      lng:req.body.lng,
       NotificationViewed: false,
     });
 
@@ -114,6 +116,7 @@ router.post("/", async (req, res) => {
       Email: req.body.Email,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
+     
       rated: false,
       NotificationViewed: false,
     });
@@ -182,6 +185,7 @@ router.post("/", async (req, res) => {
       City: req.body.city,
       rated: false,
       NotificationViewed: false,
+     
     });
 
     try {

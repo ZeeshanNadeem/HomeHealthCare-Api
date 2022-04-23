@@ -73,6 +73,12 @@ const serviceRequestSchema = new mongoose.Schema({
   totalMeetingsRequested: {
     type: Number,
   },
+  lat:{
+    type:String
+  },
+  lng:{
+    type:String
+  }
 });
 
 const ConfirmService = mongoose.model("ConfirmService", serviceRequestSchema);
@@ -94,6 +100,8 @@ function validateUserRequest(name) {
     email: Joi.string().min(5).max(255).required().email(),
     city: Joi.string().required(),
     totalMeetingsRequested: Joi.number(),
+    lat:Joi.string(),
+    lng:Joi.string()
   });
   return schema.validate(name);
 }
