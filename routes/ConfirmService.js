@@ -56,6 +56,7 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   if (req.query.assignDuty) {
+    console.log("1");
     const staffMember = await Staff.findById(req.body.staffMemberID);
 
     const user = await User.findById(req.body.userID);
@@ -78,8 +79,7 @@ router.post("/", async (req, res) => {
       // ServiceNeededTo: req.body.ServiceNeededTo,
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
-      lat:req.body.lat,
-      lng:req.body.lng,
+     
       PhoneNo: req.body.PhoneNo,
 
       rated: false,
@@ -116,6 +116,7 @@ router.post("/", async (req, res) => {
     //   return res.status(400).send("Service with the given ID doesn't exist");
 
     if (!service) {
+      console.log("2");
       service = await ServiceIndependent.findById(req.body.ServiceID);
 
       let temp = {};
@@ -165,6 +166,7 @@ router.post("/", async (req, res) => {
         return res.status(400).send(ex.details[0].message);
       }
     } else {
+      console.log("3");
       const user = await User.findById(req.body.userID);
       if (!user)
         return res.status(404).send("The User doesn't exist with the given ID");
@@ -189,6 +191,8 @@ router.post("/", async (req, res) => {
         rated: false,
         Email: req.body.email,
         City: req.body.city,
+        lat:req.body.lat,
+        lng:req.body.lng,
         totalMeetingsRequested: req.body.totalMeetingsRequested,
       });
 
