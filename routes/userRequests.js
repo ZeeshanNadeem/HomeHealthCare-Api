@@ -17,21 +17,31 @@ router.get("/", async (req, res) => {
   if (req.query.userID) {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
+      
+
     });
     res.send(requests);
   } else if (req.query.staffMemberId) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
+      reschedule:{$ne:true}
+
     });
     res.send(requests);
   } else if (req.query.vacPlan) {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
       VaccinationPlan: true,
+      reschedule:{$ne:true}
+
     });
     res.send(requests);
   } else {
-    const requests = await UserRequest.find();
+    const requests = await UserRequest.find({
+      reschedule:{$ne:true}
+
+
+    });
     res.send(requests);
   }
 });
@@ -81,6 +91,7 @@ router.post("/", async (req, res) => {
       rated: req.body.rated,
       lat:req.body.lat,
       lng:req.body.lng,
+      markers:req.body.markers,
       NotificationViewed: false,
     });
 
@@ -198,13 +209,13 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-  const { error } = validateUserRequest(req.body);
+  // const { error } = validateUserRequest(req.body);
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Request with the given ID was not found. ");
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
+  // if (error) {
+  //   return res.status(400).send(error.details[0].message);
+  // }
 
   const staffMember = await Staff.findById(req.body.staffMemberID);
   if (!staffMember)
@@ -220,21 +231,33 @@ router.put("/:id", async (req, res) => {
   if (!service)
     return res.status(400).send("Service with the given ID doesn't exist");
 
+ 
+  
+
+  
   const request = await UserRequest.findByIdAndUpdate(
     req.params.id,
     {
-      staffMemberAssigned: staffMember,
-      Organization: organization,
-      Service: service,
+      fullName: req.body.fullName,
+      Email: req.body.Email,
+ 
+      staffMemberAssigned: req.body.staffMemberAssigned,
+      VaccinationPlan: req.body.vaccination,
+      Organization: req.body.Organization,
       Schedule: req.body.Schedule,
+      Service: req.body.Service,
       ServiceNeededTime: req.body.ServiceNeededTime,
       // ServiceNeededTo: req.body.ServiceNeededTo,
-      OnlyOnce: req.body.OnlyOnce,
+      City: req.body.City,
+      // Recursive: req.body.Recursive,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
-      rated: false,
-      Email: req.body.email,
-      City: req.body.city,
+      rated: req.body.rated,
+      lat:req.body.lat,
+      lng:req.body.lng,
+      markers:req.body.markers,
+      NotificationViewed: false,
+      reschedule:false
     },
     {
       new: true,
@@ -245,6 +268,7 @@ router.put("/:id", async (req, res) => {
     return res.status(404).send("Request with the given ID was not found.");
 
   res.send(request);
+
 });
 
 router.patch("/", async (req, res) => {
@@ -299,6 +323,35 @@ router.patch("/", async (req, res) => {
       "user._id": req.query.getPatientAppointmentsID,
     });
     res.send(appointments);
+  }
+ else if(req.query.rescheduleAppointment){
+
+    const request = await UserRequest.findByIdAndUpdate(
+      req.query.id,
+      {
+        reschedule:req.body.status
+      },
+      {
+        new: true,
+      }
+    );
+  
+    if (!request)
+      return res.status(404).send("Request with the given ID was not found.");
+  
+    res.send(request);
+  }
+
+  else if(req.query.rescheduleFalse){
+    const requests = await UserRequest.updateMany(
+     {},{reschedule:req.body.status}
+    );
+  
+    if (!requests)
+      return res.status(404).send("Request with the given ID was not found.");
+
+    res.send(requests);
+  
   }
 });
 module.exports = router;

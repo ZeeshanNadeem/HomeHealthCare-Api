@@ -78,6 +78,9 @@ const serviceRequestSchema = new mongoose.Schema({
   },
   lng:{
     type:String
+  },
+  markers:{
+    type:[Object]
   }
 });
 
@@ -101,7 +104,8 @@ function validateUserRequest(name) {
     city: Joi.string().required(),
     totalMeetingsRequested: Joi.number(),
     lat:Joi.string(),
-    lng:Joi.string()
+    lng:Joi.string(),
+    markers:Joi.array()
   });
   return schema.validate(name);
 }
