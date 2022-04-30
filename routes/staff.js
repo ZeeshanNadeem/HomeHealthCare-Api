@@ -100,10 +100,13 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
 
     res.send(staff);
   } 
+
+  //Get staff members to assign duty to substitue staff members on leave 
   else if(req.query.day && req.query.service && !req.query.allStaff && req.query.ignoreCity){
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
       "Organization._id": req.query.organization,
+   
      
     }).and([{ availableDays: { name: req.query.day, value: true } }]);
     res.send(staff);

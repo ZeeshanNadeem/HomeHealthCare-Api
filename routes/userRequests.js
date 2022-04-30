@@ -21,23 +21,38 @@ router.get("/", async (req, res) => {
 
     });
     res.send(requests);
-  } else if (req.query.staffMemberId) {
+} else if (req.query.staffMemberId && !req.query.showMyDuties) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
-      reschedule:{$ne:true}
+      completed:{$exists: false}
+      // reschedule:{$ne:true}
 
     });
     res.send(requests);
-  } else if (req.query.vacPlan) {
+  }
+  else if (req.query.showMyDuties) {
+    const requests = await UserRequest.find({
+      "staffMemberAssigned._id": req.query.staffMemberId,
+     
+      // reschedule:{$ne:true}
+
+    });
+    res.send(requests);
+  }
+  
+  
+  else if (req.query.vacPlan) {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
       VaccinationPlan: true,
-      reschedule:{$ne:true}
+      // reschedule:{$ne:true}
 
     });
     res.send(requests);
   } else {
     const requests = await UserRequest.find({
+      
+      completed:{$exists: false},
       reschedule:{$ne:true}
 
 
@@ -93,6 +108,7 @@ router.post("/", async (req, res) => {
       lng:req.body.lng,
       markers:req.body.markers,
       NotificationViewed: false,
+      
     });
 
     try {
@@ -130,6 +146,7 @@ router.post("/", async (req, res) => {
      
       rated: false,
       NotificationViewed: false,
+  
     });
 
     try {
@@ -196,6 +213,7 @@ router.post("/", async (req, res) => {
       City: req.body.city,
       rated: false,
       NotificationViewed: false,
+    
      
     });
 
@@ -352,6 +370,22 @@ router.patch("/", async (req, res) => {
 
     res.send(requests);
   
+  }
+  else if(req.query.serviceCompleted){
+    const request = await UserRequest.findByIdAndUpdate(
+      req.query.id,
+      {
+        completed:req.body.completeStatus
+      },
+      {
+        new: true,
+      }
+    );
+  
+    if (!request)
+      return res.status(404).send("Request with the given ID was not found.");
+  
+    res.send(request);
   }
 });
 module.exports = router;

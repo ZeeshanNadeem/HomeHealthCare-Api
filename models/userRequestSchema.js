@@ -76,6 +76,9 @@ const userRequestSchema = new mongoose.Schema({
   },
   reschedule:{
     type:Boolean
+  },
+  completed:{
+    type:Boolean
   }
 });
 
@@ -101,7 +104,8 @@ function validateUserRequest(name) {
     lat:Joi.string(),
     lng:Joi.string(),
     markers:Joi.array(),
-    reschedule:Joi.boolean()
+    reschedule:Joi.boolean(),
+    completed:Joi.boolean(),
   });
   return schema.validate(name);
 }
