@@ -17,6 +17,7 @@ const user = require("./routes/user");
 const auth = require("./routes/auth");
 const availability = require("./routes/availabilityStatus");
 const indepedentServices = require("./routes/IndependentService");
+
 const app = express();
 
 if (!config.get("jwtPrivateKey")) {
@@ -50,6 +51,8 @@ app.use("/api/availablity", availability);
 app.use("/api/user", user);
 app.use("/api/auth", auth);
 app.use("/api/independentServices", indepedentServices);
+
+
 
 const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);

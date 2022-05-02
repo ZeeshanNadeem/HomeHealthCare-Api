@@ -52,10 +52,30 @@ router.post("/", async (req, res) => {
   if (!staff)
     return res.status(404).send("Staff doesn't exist with the given ID");
 
+
+    if(req.query.slotLeave){
+      const staffLeaveObj = new StaffLeave({
+        leaveFrom: req.body.leave_from,
+        leaveTo: req.body.leave_to,
+        staff: staff,
+        slots:req.body.slots,
+        slotLeave:true
+      });
+    
+      try {
+        const staffLeaveGot = await staffLeaveObj.save();
+        res.send(staffLeaveGot);
+      } catch (ex) {
+        return res.status(400).send(ex.details[0].message);
+      }
+    }
+
+    else{
   const staffLeaveObj = new StaffLeave({
     leaveFrom: req.body.leave_from,
     leaveTo: req.body.leave_to,
     staff: staff,
+    slotLeave:false
   });
 
   try {
@@ -64,6 +84,7 @@ router.post("/", async (req, res) => {
   } catch (ex) {
     return res.status(400).send(ex.details[0].message);
   }
+}
 });
 
 module.exports = router;

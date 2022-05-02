@@ -17,6 +17,13 @@ const leaveSchema = new mongoose.Schema({
     type: staffSchema,
     required: true,
   },
+  slots:{
+    type:[Object]
+  },
+  slotLeave:{
+    type:Boolean,
+
+  }
 });
 
 const StaffLeave = mongoose.model("StaffLeave", leaveSchema);
@@ -26,6 +33,7 @@ function validateStaffLeave(name) {
     leave_from: Joi.string().required(),
     leave_to: Joi.string().required(),
     staffID: Joi.objectId().required(),
+    slots:Joi.array()
   });
   return schema.validate(name);
 }

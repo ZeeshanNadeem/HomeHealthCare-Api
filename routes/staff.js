@@ -6,10 +6,12 @@ const { Staff, validateStaff } = require("../models/staffSchema");
 const { User } = require("../models/userSchema");
 
 const { Qualification } = require("../models/qualificationSchema");
+const { StaffLeave } = require("../models/leaveSchema");
 
 
 const router = express.Router();
 const mongoose = require("mongoose");
+var moment = require('moment');  
 
 const { Service } = require("../models/servicesSchema");
 const { ServiceIndependent } = require("../models/IndependentServicesSchema");
@@ -25,7 +27,7 @@ const distance = (lat1, lon1,staff) => {
   //   lat1 = (lat1 * Math.PI) / 180;
   //   lat2 = (lat2 * Math.PI) / 180;
 
-  console.log("staff::",staff);
+
   lon1 = (lon1 * Math.PI) / 180;
   lat1 = (lat1 * Math.PI) / 180;
   let staffInRadius=[];
@@ -68,6 +70,45 @@ const distance = (lat1, lon1,staff) => {
   return staffInRadius;
 };
 
+//This function blocks slots that have 
+//been made on leave it sets it false 
+const filterSlotOnLeave=async(staff,date)=>{
+    for(let staffMember of staff){
+      const leaves= await StaffLeave.find({"staff._id":staffMember._id});
+    
+      if(leaves.lenght===0) continue;
+
+      for(let leaveIterate of leaves){
+
+  
+      const date_ = moment(date, "YYYY/MM/DD");
+      const startDate = moment(leaveIterate.leaveFrom, "YYYY/MM/DD");
+      const endDate = moment(leaveIterate.leaveTo, "YYYY/MM/DD");
+      const Between=date_.isBetween(startDate,endDate);
+      const same1=date_.isSame(startDate);
+      const same2=date_.isSame(endDate);
+      let slotBlocked=[];
+
+      if(Between || same1 || same2)
+       {
+        for(let leaveSlots of leaveIterate.slots){
+          slotBlocked=  staffMember.
+         availableTime
+         .map((s)=>{
+            if(s.time===leaveSlots.value){
+              s.value=false;
+            }
+              
+          }
+           )
+        }
+        staffMember=slotBlocked;
+      }
+    
+  }
+  }
+    return staff;
+}
 router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
   // res.send(staff);
@@ -86,11 +127,16 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     }).and([{ availableDays: { name: req.query.day, value: true } }]);
 
     const staffBetweenRadius= distance(req.query.lat,req.query.lng,staff)
-   
+    const staffAfterBlockedSlotsOnLeave=await filterSlotOnLeave(staffBetweenRadius,req.query.date);
+    
     
     // db.inventory.find({ instock: { warehouse: "A", qty: 5 } });
-    res.send(staffBetweenRadius);
-  } else if (req.query.allStaff) {
+    res.send(staffAfterBlockedSlotsOnLeave);
+  }
+ 
+  
+  
+  else if (req.query.allStaff) {
    
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
@@ -202,7 +248,7 @@ router.post("/", async (req, res) => {
   } else {
     const service = await Service.findById(req.body.serviceID);
     if (!service) return res.status(400).send("Service Type doesn't exist");
-    console.log("service::", service);
+   
     const staff = new Staff({
       fullName: req.body.fullName,
       email: req.body.email,
