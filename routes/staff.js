@@ -16,6 +16,11 @@ var moment = require('moment');
 const { Service } = require("../models/servicesSchema");
 const { ServiceIndependent } = require("../models/IndependentServicesSchema");
 
+const {
+  UserRequest,
+ 
+} = require("../models/UserRequestSchema");
+
 
 const distance = (lat1, lon1,staff) => {
   // The math module contains a function
@@ -109,6 +114,34 @@ const filterSlotOnLeave=async(staff,date)=>{
   }
     return staff;
 }
+
+const dutiesCheck=async(staffMemberID,leave_start_date,leave_end_date,leave_slots)=>{
+  const requests = await UserRequest.find({
+    "staffMemberAssigned._id": staffMemberID,
+    completed:{$exists: false}
+    // reschedule:{$ne:true}
+
+  });
+  let slots_to_assign=[];
+  for(let s of requests){
+    const date_ = moment(s.Schedule, "YYYY/MM/DD");
+    const startDate = moment(leave_start_date, "YYYY/MM/DD");
+    const endDate = moment(leave_end_date, "YYYY/MM/DD");
+    if(date_.isBetween(leave_start_date,leave_end_date) ||  date_.isSame(startDate) ||
+    date_.isSame(endDate)
+    ){
+        for(let slot of leave_slots){
+        
+            if(s.ServiceNeededTime===slot.value){
+              slots_to_assign.push(s);
+            }
+          
+        }
+    }
+   
+  }
+  return slots_to_assign;
+}
 router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
   // res.send(staff);
@@ -133,9 +166,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     // db.inventory.find({ instock: { warehouse: "A", qty: 5 } });
     res.send(staffAfterBlockedSlotsOnLeave);
   }
- 
-  
-  
+
   else if (req.query.allStaff) {
    
     const staff = await Staff.find({
@@ -157,6 +188,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     }).and([{ availableDays: { name: req.query.day, value: true } }]);
     res.send(staff);
   }
+ 
   else {
     res.json(res.paginatedResults);
   }
@@ -182,6 +214,15 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+   //checking if the user who wants leave
+  //has duties assigned in that time span or not
+  //returning his duty records.
+ if(req.query.SlotsBooked){
+    const slotsToReAssign= await dutiesCheck(req.body.staffID,req.body.leave_from,req.body.leave_to,req.body.slots)
+    console.log("slotsTO...",slotsToReAssign)
+    res.send(slotsToReAssign)
+    }
+    else{
   const { error } = validateStaff(req.body);
 
   if (error) {
@@ -245,7 +286,9 @@ router.post("/", async (req, res) => {
      
       return res.status(400).send(ex.details[0].message);
     }
-  } else {
+  } 
+  
+  else {
     const service = await Service.findById(req.body.serviceID);
     if (!service) return res.status(400).send("Service Type doesn't exist");
    
@@ -288,6 +331,7 @@ router.post("/", async (req, res) => {
       return res.status(400).send(ex.details[0].message);
     }
   }
+}
 });
 
 router.put("/:id", async (req, res) => {

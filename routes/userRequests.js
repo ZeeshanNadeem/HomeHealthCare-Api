@@ -118,6 +118,7 @@ router.post("/", async (req, res) => {
       return res.status(400).send(ex.details[0].message);
     }
   } else if (req.query.assignDuty) {
+    console.log("req.body:",req.body)
     const staffMember = await Staff.findById(req.body.staffMemberID);
 
     const user = await User.findById(req.body.userID);
