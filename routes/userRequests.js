@@ -144,7 +144,7 @@ router.post("/", async (req, res) => {
       Email: req.body.Email,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
-     
+      markers:req.body.markers,
       rated: false,
       NotificationViewed: false,
   
