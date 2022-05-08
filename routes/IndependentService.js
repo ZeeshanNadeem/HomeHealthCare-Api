@@ -13,7 +13,8 @@ router.get("/", paginatedResults(ServiceIndependent),async (req, res) => {
       _id: req.query.serviceID,
     });
     res.send(services);
-  } else {
+  }
+  else {
     // const services = await ServiceIndependent.find();
     res.json(res.paginatedResults);
     // res.send(services);
