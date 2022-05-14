@@ -77,6 +77,8 @@ const distance = (lat1, lon1,staff) => {
 
 //This function blocks slots that have 
 //been made on leave it sets it false 
+//If that staff member has taken slot
+//leave when filter that slot
 const filterSlotOnLeave=async(staff,date)=>{
     for(let staffMember of staff){
       const leaves= await StaffLeave.find({"staff._id":staffMember._id});
@@ -142,6 +144,23 @@ const dutiesCheck=async(staffMemberID,leave_start_date,leave_end_date,leave_slot
   }
   return slots_to_assign;
 }
+//Independent staff member 
+//whose status is not approved from app
+//admin
+const filterPendingStaff=async(staff)=>{
+  let filter=[];
+  for(let s of staff){
+   let user=await User.find({"staffMember._id":staff._id});
+   if(user.isOrganizationAdmin && user.isOrganizationAdmin==="pending"){
+     continue;
+   }
+   else filter.push(s)
+
+  }
+  return filter;
+}
+
+
 router.get("/", paginatedResults(Staff), async (req, res) => {
   // const staff = await Staff.find().sort("fullName");
   // res.send(staff);
@@ -161,10 +180,10 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
 
     const staffBetweenRadius= distance(req.query.lat,req.query.lng,staff)
     const staffAfterBlockedSlotsOnLeave=await filterSlotOnLeave(staffBetweenRadius,req.query.date);
-    
+    const filterPendingStaff_=await filterPendingStaff(staffAfterBlockedSlotsOnLeave);
     
     // db.inventory.find({ instock: { warehouse: "A", qty: 5 } });
-    res.send(staffAfterBlockedSlotsOnLeave);
+    res.send(filterPendingStaff_);
   }
 
   else if (req.query.allStaff) {
@@ -178,7 +197,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     res.send(staff);
   } 
 
-  //Get staff members to assign duty to substitue staff members on leave 
+  //Get staff members to assign duty to substitue staff members (on leave) 
   else if(req.query.day && req.query.service && !req.query.allStaff && req.query.ignoreCity){
     const staff = await Staff.find({
       "staffSpeciality._id": req.query.service,
@@ -337,6 +356,66 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const { error } = validateStaff(req.body);
 
+  //updating indepdent staff details
+  if(req.query.updateIndependent){
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res
+      .status(400)
+      .send("Staff member with the given ID was not found. ");
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const service = await ServiceIndependent.findById(req.body.serviceID);
+  if (!service) return res.status(400).send("Service Type doesn't exist");
+
+  const qualification = await Qualification.findById(req.body.qualificationID);
+  if (!qualification)
+    return res.status(400).send("The qualification doesn't exist");
+
+  const staff = await Staff.findByIdAndUpdate(
+    req.params.id,
+    {
+      fullName: req.body.fullName,
+      dateOfBirth: req.body.dateOfBirth,
+      staffSpeciality: {
+        _id: service._id,
+        name: service.serviceName,
+        servicePrice: service.servicePrice,
+      },
+      qualification: qualification,
+
+      // availabilityFrom: req.body.availabilityFrom,
+      // availabilityTo: req.body.availabilityTo,
+
+      availableTime: req.body.availableTime,
+      availableDays: req.body.availableDays,
+
+      // availabileDayFrom: req.body.availabileDayFrom,
+      // availabileDayTo: req.body.availabileDayTo,
+      // Organization: req.body.Organization,
+
+      // email: req.body.email,
+      phone: req.body.phone,
+
+      // Rating: req.body.Rating,
+      // RatingAvgCount: req.body.RatingAvgCount,
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!staff)
+    return res
+      .status(404)
+      .send("Staff member with the given ID was not found.");
+
+  res.send(staff);
+  }
+   //updating organization staff details
+  else{
+
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res
       .status(400)
@@ -392,6 +471,7 @@ router.put("/:id", async (req, res) => {
       .send("Staff member with the given ID was not found.");
 
   res.send(staff);
+}
 });
 
 router.patch("/:id", async (req, res) => {
