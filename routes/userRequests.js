@@ -88,6 +88,9 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   if (req.query.postObj) {
+
+    
+    
     const request = new UserRequest({
       fullName: req.body.fullName,
       Email: req.body.Email,
@@ -147,6 +150,8 @@ router.post("/", async (req, res) => {
       markers:req.body.markers,
       rated: false,
       NotificationViewed: false,
+      lat:req.body.lat,
+      lng:req.body.lng
   
     });
 
@@ -214,6 +219,8 @@ router.post("/", async (req, res) => {
       City: req.body.city,
       rated: false,
       NotificationViewed: false,
+      lat:req.body.lat,
+      lng:req.body.lng
     
      
     });

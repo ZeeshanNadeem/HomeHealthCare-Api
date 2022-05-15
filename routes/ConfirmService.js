@@ -79,6 +79,8 @@ router.post("/", async (req, res) => {
       // ServiceNeededTo: req.body.ServiceNeededTo,
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
+      lat:req.body.lat,
+      lng:req.body.lng,
      
       PhoneNo: req.body.PhoneNo,
 
@@ -125,6 +127,7 @@ router.post("/", async (req, res) => {
           _id: service._id,
           serviceName: service.serviceName,
           serviceOrgranization: service.serviceOrganization,
+          servicePrice:service.servicePrice
         };
       }
 
@@ -150,6 +153,8 @@ router.post("/", async (req, res) => {
         Service: temp,
         Schedule: req.body.Schedule,
         ServiceNeededTime: req.body.ServiceNeededTime,
+        lat:req.body.lat,
+        lng:req.body.lng,
         // ServiceNeededTo: ServiceNeededTo_,
         // Recursive: req.body.Recursive,
         Address: req.body.Address,
