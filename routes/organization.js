@@ -3,13 +3,101 @@ const {
   Organization,
   validateOrganization,
 } = require("../models/organizationSchema");
+const {
+Service,
+} = require("../models/servicesSchema");
+
+const {
+  User,
+  } = require("../models/userSchema");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-router.get("/", paginatedResults(Organization), async (req, res) => {
-  // const organization = await Organization.find();
 
-  if(req.query.getIndependentOrg){
+const distance = (lat1, lat2,radius,lon1,lon2) => {
+  // The math module contains a function
+  // named toRadians which converts from
+  // degrees to radians.
+
+  // lon1 = (lon1 * Math.PI) / 180;
+  //   lon2 = (lon2 * Math.PI) / 180;
+  //   lat1 = (lat1 * Math.PI) / 180;
+  //   lat2 = (lat2 * Math.PI) / 180;
+
+
+  lon1 = (lon1 * Math.PI) / 180;
+  lat1 = (lat1 * Math.PI) / 180;
+  
+ 
+   
+   lon2 =  (lon2* Math.PI) / 180;
+    
+   lat2 = (lat2 * Math.PI) / 180;
+  
+    // Haversine formula
+    
+    let dlon = lon2 - lon1;
+    let dlat = lat2 - lat1;
+    let a =
+      Math.pow(Math.sin(dlat / 2), 2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+  
+    let c = 2 * Math.asin(Math.sqrt(a));
+  
+    // Radius of earth in kilometers. Use 3956
+    // for miles
+    let r = 6371;
+  
+    // calculate the result
+    let radiusFound= c * r;
+    
+  
+    if(parseInt(radiusFound)<= parseInt(radius)){
+      return true;
+    }
+    else return false;
+ 
+
+
+
+};
+
+
+//returns all those organizations whose radius lies in
+//patient's lat lng
+const checkRadius=async (services,lat,lng)=>{
+  let Organizations=[];
+for(let service of services){
+  console.log("service:",service.serviceOrgranization._id.toString())
+  const users=await User.find({"Organization._id":service.serviceOrgranization._id.toString()})
+  if(users.length>0){
+  for(let user of users){
+    if(user.locations.length>0){
+     for (let location of user.locations){
+        const liesInRadius= distance(location.lat,Number(lat),location.radius,location.lng,Number(lng))
+         if(liesInRadius){ Organizations.push(service.serviceOrgranization)
+          console.log(Organizations)
+        continue;
+        }
+     }
+    }
+  }
+}
+ 
+}
+return Organizations;
+}
+
+router.get("/", paginatedResults(Organization), async (req, res) => {
+  // getting organizations on patient lat lng radius lie check and service Name
+  if(req.query.getOrganziations){
+      const services=await Service.find({serviceName:req.query.service});
+     const organizations= await checkRadius(services,req.query.lat,req.query.lng);
+     console.log("orgs:",organizations);
+     res.send(organizations);
+  }
+
+ else if(req.query.getIndependentOrg){
         const organizations=await Organization.find();
         let temp=organizations.filter(x=>x.name.toUpperCase().includes("INDEPENDENT"));
         res.send(temp);

@@ -18,7 +18,12 @@ router.get("/", paginatedResults(Service), async (req, res) => {
   if (req.query.findServiceByUser) {
     const services = await Service.find({ "user._id": req.query.userID });
     res.send(services);
-  } else if (req.query.IndependentServiceID) {
+  } 
+ else if(req.query.UniqueService){
+  const services = await Service.distinct("serviceName");
+  res.send(services);
+ }  
+  else if (req.query.IndependentServiceID) {
     const services = await Service.find({
       "IndependentService._id": req.query.IndependentServiceID,
     });

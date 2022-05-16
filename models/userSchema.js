@@ -83,6 +83,12 @@ const userSchema = new mongoose.Schema({
   },
  locations: {
   type:[Object]
+  },
+  lat:{
+    type:String
+  },
+  lng:{
+    type:String
   }
  
 
@@ -135,6 +141,8 @@ userSchema.methods.generateAuthToken = function () {
       RatingAvgCount: this.RatingAvgCount,
       city: this.city,
       locations: this.locations,
+      lat:this.lat,
+      lng:this.lng
       
       
     },
@@ -163,6 +171,8 @@ function validateUser(user) {
     Rating: Joi.number(),
     RatingAvgCount: Joi.number(),
     locations: Joi.array(),
+    lat:Joi.number(),
+    lng:Joi.number(),
     
   });
   return schema.validate(user);

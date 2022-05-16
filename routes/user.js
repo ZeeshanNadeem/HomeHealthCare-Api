@@ -68,6 +68,7 @@ router.get("/me", auth, async (req, res) => {
   res.send(user);
 });
 
+
 router.put("/:id", async (req, res) => {
   // const { error } = validateService(requestBody);
 
@@ -113,7 +114,32 @@ router.put("/:id", async (req, res) => {
       }
     );
     res.send(user);
-  } else {
+  } 
+  //updating patients lat lng
+  else if(req.query.updatePatientLocation){
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+    return res
+      .status(400)
+      .send("user with the given ID was not found. ");
+
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        {
+          lat: req.body.lat,
+          lng:req.body.lng
+        },
+        {
+          new: true,
+        }
+      );
+  
+      if (!user)
+        return res
+          .status(404)
+          .send("Organization with the given ID was not found.");
+      res.send(user);
+  }
+  else {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
       return res
         .status(400)
@@ -218,6 +244,8 @@ router.post("/", upload.single("CV"), async (req, res) => {
 
 
   user.phone = req.body.phone;
+  user.lat=req.body.lat;
+  user.lng=req.body.lng;
 
   const salt = await bcrypt.genSalt(10);
 
