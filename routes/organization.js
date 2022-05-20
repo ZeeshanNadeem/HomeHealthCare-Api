@@ -68,16 +68,21 @@ const distance = (lat1, lat2,radius,lon1,lon2) => {
 const checkRadius=async (services,lat,lng)=>{
   let Organizations=[];
 for(let service of services){
-  console.log("service:",service.serviceOrgranization._id.toString())
+ 
   const users=await User.find({"Organization._id":service.serviceOrgranization._id.toString()})
   if(users.length>0){
   for(let user of users){
     if(user.locations.length>0){
      for (let location of user.locations){
-        const liesInRadius= distance(location.lat,Number(lat),location.radius,location.lng,Number(lng))
-         if(liesInRadius){ Organizations.push(service.serviceOrgranization)
+        const liesInRadius= distance(location.lat,Number(lat),Number(location.radius),location.lng,Number(lng))
+         if(liesInRadius){ 
+          
+         const check= Organizations.some(o=>o._id.toString()===service.serviceOrgranization._id.toString()); 
+         if(check) continue;
+         else{Organizations.push(service.serviceOrgranization)
           console.log(Organizations)
-        continue;
+        continue;}
+          
         }
      }
     }
