@@ -94,6 +94,7 @@ router.post("/", async (req, res) => {
       return res.status(400).send(ex.details[0].message);
     }
   } else {
+    //Here 
     const { error } = validateUserRequest(req.body);
 
     if (error) {
@@ -113,21 +114,25 @@ router.post("/", async (req, res) => {
         .send("Organization with the given ID doesn't exist");
 
     let service = null;
-    service = await Service.findById(req.body.ServiceID);
+    // service = await Service.findById(req.body.ServiceID);
+    service=await Service.find({"serviceOrgranization.name":organization.name,
+    serviceName:req.body.ServiceID
+  })
     // if (!service)
     //   return res.status(400).send("Service with the given ID doesn't exist");
 
     if (!service) {
       
-      service = await ServiceIndependent.findById(req.body.ServiceID);
+      service = await ServiceIndependent.find({"serviceOrgranization.name":organization.name,
+      serviceName:req.body.ServiceID})
 
       let temp = {};
       if (service) {
         temp = {
           _id: service._id,
-          serviceName: service.serviceName,
-          serviceOrgranization: service.serviceOrganization,
-          servicePrice:service.servicePrice
+          serviceName: service[0].serviceName,
+          serviceOrgranization: service[0].serviceOrganization,
+          servicePrice:service[0].servicePrice
         };
       }
 
@@ -179,14 +184,19 @@ router.post("/", async (req, res) => {
       // const myArray = req.body.ServiceNeededFrom.split(":");
       // const sum = parseInt(myArray[0]) + 3;
       // const ServiceNeededTo_ = sum + ":00";
-
+     const temp={
+      _id:service[0]._id,
+      serviceName:service[0].serviceName,
+      serviceOrgranization:service[0].serviceOrgranization,
+      servicePrice:service[0].servicePrice
+     }
       const request = new ConfirmService({
         fullName: req.body.fullName,
         user: user,
         staffMemberAssigned: staffMember,
         Organization: organization,
         VaccinationPlan: req.body.vaccination,
-        Service: service,
+        Service: temp,
         Schedule: req.body.Schedule,
         ServiceNeededTime: req.body.ServiceNeededTime,
         // ServiceNeededTo: ServiceNeededTo_,
@@ -201,7 +211,7 @@ router.post("/", async (req, res) => {
         markers:req.body.markers,
         totalMeetingsRequested: req.body.totalMeetingsRequested,
       });
-
+     
       try {
         const requestSaved = await request.save();
         res.send(requestSaved);

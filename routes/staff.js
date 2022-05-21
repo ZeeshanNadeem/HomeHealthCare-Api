@@ -167,7 +167,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
 
   if (req.query.findStaffOnOrg) {
     const staff = await Staff.find({
-      "staffSpeciality._id": req.query.service,
+      "staffSpeciality.name": req.query.service,
       "Organization._id": req.query.organization,
     });
     res.send(staff);
@@ -175,7 +175,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     const staff = await Staff.find({
       "staffSpeciality.name": req.query.service,
       "Organization._id": req.query.organization
-    }).and([{ availableDays: { name: req.query.day, value: true } }]);
+    }).and([{ availableDays: { name: req.query.day, value: true } }]).sort({Rating:-1});
 
     const staffBetweenRadius= distance(req.query.lat,req.query.lng,staff)
     const staffAfterBlockedSlotsOnLeave=await filterSlotOnLeave(staffBetweenRadius,req.query.date);
@@ -185,12 +185,14 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     res.send(filterPendingStaff_);
   }
 
+  //Showing all Staff members on userRequest page
+  //whenever user selects organization & service
   else if (req.query.allStaff) {
    
     const staff = await Staff.find({
       "staffSpeciality.name": req.query.service,
       "Organization._id": req.query.organization,
-      city: req.query.city,
+      
     });
 
     res.send(staff);

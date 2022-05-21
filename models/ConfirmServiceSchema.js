@@ -24,7 +24,7 @@ const serviceRequestSchema = new mongoose.Schema({
     required: true,
   },
   Service: {
-    type: servicesSchema || independentServicesSchema,
+    type: servicesSchema,
     required: true,
   },
   // IndependentService: {
@@ -57,7 +57,7 @@ const serviceRequestSchema = new mongoose.Schema({
   },
   City: {
     type: String,
-    required: true,
+    
   },
   Email: {
     type: String,
@@ -95,13 +95,13 @@ function validateUserRequest(name) {
 
     vaccination: Joi.boolean(),
     ServiceNeededTime: Joi.string().required(),
-    ServiceID: Joi.objectId().required(),
+    ServiceID: Joi.string().required(),
     Schedule: Joi.string().required(),
     // Recursive: Joi.boolean().required(),
     Address: Joi.string().required(),
     PhoneNo: Joi.number().required(),
     email: Joi.string().min(5).max(255).required().email(),
-    city: Joi.string().required(),
+    city: Joi.string(),
     totalMeetingsRequested: Joi.number(),
     lat:Joi.string(),
     lng:Joi.string(),

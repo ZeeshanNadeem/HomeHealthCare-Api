@@ -50,7 +50,7 @@ const userRequestSchema = new mongoose.Schema({
   },
   City: {
     type: String,
-    required: true,
+    
   },
   Email: {
     type: String,
@@ -100,7 +100,7 @@ function validateUserRequest(name) {
     Address: Joi.string().required(),
     PhoneNo: Joi.number().required(),
     email: Joi.string().min(5).max(255).required().email(),
-    city: Joi.string().required(),
+    city: Joi.string(),
     NotificationViewed: Joi.string(),
     lat:Joi.string(),
     lng:Joi.string(),
