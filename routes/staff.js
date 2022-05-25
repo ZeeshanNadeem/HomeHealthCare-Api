@@ -177,6 +177,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
       "Organization._id": req.query.organization
     }).and([{ availableDays: { name: req.query.day, value: true } }]).sort({Rating:-1});
 
+  
     const staffBetweenRadius= distance(req.query.lat,req.query.lng,staff)
     const staffAfterBlockedSlotsOnLeave=await filterSlotOnLeave(staffBetweenRadius,req.query.date);
     const filterPendingStaff_=await filterPendingStaff(staffAfterBlockedSlotsOnLeave);
@@ -205,7 +206,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
       "Organization._id": req.query.organization,
    
      
-    }).and([{ availableDays: { name: req.query.day, value: true } }]);
+    }).and([{ availableDays: { name: req.query.day, value: true } }]).sort({Rating:-1});
     res.send(staff);
   }
  
