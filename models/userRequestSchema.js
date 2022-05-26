@@ -45,7 +45,7 @@ const userRequestSchema = new mongoose.Schema({
     required: true,
   },
   PhoneNo: {
-    type: Number,
+    type: String,
     required: true,
   },
   City: {
@@ -98,7 +98,7 @@ function validateUserRequest(name) {
     Schedule: Joi.string().required(),
     // Recursive: Joi.boolean().required(),
     Address: Joi.string().required(),
-    PhoneNo: Joi.number().required(),
+    PhoneNo: Joi.string().required(),
     email: Joi.string().min(5).max(255).required().email(),
     city: Joi.string(),
     NotificationViewed: Joi.string(),
