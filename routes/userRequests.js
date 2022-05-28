@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
   if (req.query.userID) {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
-      canceled:{$exists:false}
+      // canceled:{$exists:false}
 
     });
     res.send(requests);
