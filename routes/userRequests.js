@@ -17,14 +17,15 @@ router.get("/", async (req, res) => {
   if (req.query.userID) {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
-      
+      canceled:{$exists:false}
 
     });
     res.send(requests);
 } else if (req.query.staffMemberId && !req.query.showMyDuties) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
-      completed:{$exists: false}
+      completed:{$exists: false},
+      canceled:{$exists:false}
       // reschedule:{$ne:true}
 
     });
@@ -33,7 +34,7 @@ router.get("/", async (req, res) => {
   else if (req.query.showMyDuties) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
-     
+      canceled:{$exists:false}
       // reschedule:{$ne:true}
 
     });
@@ -45,6 +46,7 @@ router.get("/", async (req, res) => {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
       VaccinationPlan: true,
+      
       // reschedule:{$ne:true}
 
     });
@@ -53,8 +55,8 @@ router.get("/", async (req, res) => {
     const requests = await UserRequest.find({
       
       completed:{$exists: false},
-      reschedule:{$ne:true}
-
+      reschedule:{$ne:true},
+      canceled:{$exists:false}
 
     });
     res.send(requests);
@@ -155,6 +157,9 @@ router.post("/", async (req, res) => {
   
     });
 
+    if(req.body.canceled){
+      request.canceled=req.body.canceled;
+    }
     try {
       const requestSaved = await request.save();
       res.send(requestSaved);
@@ -243,6 +248,25 @@ router.put("/:id", async (req, res) => {
   //   return res.status(400).send(error.details[0].message);
   // }
 
+  if(req.body.canceled){
+    
+    const request = await UserRequest.findByIdAndUpdate(
+      req.params.id,
+      {
+        canceled:req.query.status
+      },
+      {
+        new: true,
+      }
+    );
+  
+    if (!request)
+      return res.status(404).send("Request with the given ID was not found.");
+  
+    res.send(request);
+  }
+
+  else{
   const staffMember = await Staff.findById(req.body.staffMemberID);
   if (!staffMember)
     return res
@@ -294,7 +318,7 @@ router.put("/:id", async (req, res) => {
     return res.status(404).send("Request with the given ID was not found.");
 
   res.send(request);
-
+}
 });
 
 router.patch("/", async (req, res) => {

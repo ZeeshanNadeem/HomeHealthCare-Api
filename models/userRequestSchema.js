@@ -80,6 +80,9 @@ const userRequestSchema = new mongoose.Schema({
   },
   completed:{
     type:Boolean
+  },
+  canceled:{
+    type:Boolean
   }
 });
 
@@ -107,6 +110,7 @@ function validateUserRequest(name) {
     markers:Joi.array(),
     reschedule:Joi.boolean(),
     completed:Joi.boolean(),
+    canceled:Joi.boolean(),
   });
   return schema.validate(name);
 }
