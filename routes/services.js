@@ -67,11 +67,15 @@ router.post("/", async (req, res) => {
     const serviceGot = await ServiceIndependent.findById(req.body.serviceID);
     if (!serviceGot)
       return res.status(400).send("Independent service doesn't exist");
+
+      const services=req.body.services;
+      let res_=[];
+      for(let s of services){
     const service = new Service({
-      serviceName: serviceGot.serviceName,
+      serviceName: s.serviceName,
       IndependentService: serviceGot,
       serviceOrgranization: organization,
-      servicePrice: serviceGot.servicePrice,
+      servicePrice: s.servicePrice,
     });
 
     const user = await User.findById(req.body.userID);
@@ -79,10 +83,13 @@ router.post("/", async (req, res) => {
 
     try {
       const serviceSaved = await service.save();
-      res.send(serviceSaved);
+      res_.push(serviceSaved)
+      // res.send(serviceSaved);
     } catch (ex) {
       return res.status(400).send(ex.details[0].message);
     }
+  }
+  res.send(res_)
   } else {
     try {
       const service = new Service({
@@ -118,7 +125,6 @@ router.patch("/", async (req, res) => {
   res.send(service);
 });
 
-
 router.put("/:id", async (req, res) => {
   const { error } = validateService(req.body);
 
@@ -151,6 +157,7 @@ router.put("/:id", async (req, res) => {
 
   res.send(service);
 });
+
 function paginatedResults(model) {
   return async (req, res, next) => {
     const page = parseInt(req.query.page);

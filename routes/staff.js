@@ -172,8 +172,10 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
     });
     res.send(staff);
   } else if (req.query.day && req.query.service && !req.query.allStaff && !req.query.ignoreCity) {
+    //db.inventory.find( { "instock": { $elemMatch: { qty: { $gt: 10, $lte: 20 } } } } 
+    //req.query.service,
     const staff = await Staff.find({
-      "staffSpeciality.name": req.query.service,
+      "staffSpeciality": {$elemMatch:{serviceName:req.query.service}},
       "Organization._id": req.query.organization
     }).and([{ availableDays: { name: req.query.day, value: true } }]).sort({Rating:-1});
 
@@ -191,7 +193,7 @@ router.get("/", paginatedResults(Staff), async (req, res) => {
   else if (req.query.allStaff) {
    
     const staff = await Staff.find({
-      "staffSpeciality.name": req.query.service,
+      "staffSpeciality": {$elemMatch:{serviceName:req.query.service}},
       "Organization._id": req.query.organization,
       
     });
@@ -240,7 +242,7 @@ router.post("/", async (req, res) => {
   //returning his duty records.
  if(req.query.SlotsBooked){
     const slotsToReAssign= await dutiesCheck(req.body.staffID,req.body.leave_from,req.body.leave_to,req.body.slots)
-    console.log("slotsTO...",slotsToReAssign)
+   
     res.send(slotsToReAssign)
     }
     else{
@@ -263,10 +265,10 @@ router.post("/", async (req, res) => {
     return res.status(400).send("The qualification doesn't exist");
 
   if (req.query.signUpOrg) {
-    const service = await ServiceIndependent.findById(req.body.serviceID);
+    // const service = await ServiceIndependent.findById(req.body.serviceID);
     // const user =await User.findById(req.body.userID);
     // if (!user) return res.status(400).send("user ID not found")
-    if (!service) return res.status(400).send("Independent service not found");
+    // if (!service) return res.status(400).send("Independent service not found");
 
     const staff = new Staff({
       fullName: req.body.fullName,
@@ -277,11 +279,7 @@ router.post("/", async (req, res) => {
       //   name: service.serviceName,
       //   servicePrice: service.servicePrice,
       // },
-      staffSpeciality: {
-        _id: service._id,
-        name: service.serviceName,
-        servicePrice: service.servicePrice,
-      },
+      staffSpeciality:req.body.serviceID,
       Organization: req.body.Organization,
       qualification: {
         _id: qualification._id,
@@ -310,18 +308,13 @@ router.post("/", async (req, res) => {
   } 
   
   else {
-    const service = await Service.findById(req.body.serviceID);
-    if (!service) return res.status(400).send("Service Type doesn't exist");
+   
    
     const staff = new Staff({
       fullName: req.body.fullName,
       email: req.body.email,
 
-      staffSpeciality: {
-        _id: service._id,
-        name: service.serviceName,
-        servicePrice: service.servicePrice,
-      },
+      staffSpeciality: req.body.serviceID,
       Organization: req.body.Organization,
       qualification: {
         _id: qualification._id,

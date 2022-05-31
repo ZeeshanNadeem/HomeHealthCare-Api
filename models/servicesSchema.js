@@ -34,6 +34,7 @@ function validateService(name) {
     serviceOrgranization: Joi.objectId().required(),
     servicePrice: Joi.number(),
     userID: Joi.objectId(),
+    services:Joi.array()
   });
   return schema.validate(name);
 }

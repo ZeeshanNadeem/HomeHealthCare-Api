@@ -15,7 +15,7 @@ const staffSchema = new mongoose.Schema({
   //   required: true,
   // },
   staffSpeciality: {
-    type: staffTypeSchema,
+     type:[Object],
     required: true,
   },
   qualification: {
@@ -91,7 +91,7 @@ function validateStaff(Staff) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
     city: Joi.string(),
-    serviceID: Joi.objectId().required(),
+    serviceID: Joi.array(),
     qualificationID: Joi.objectId().required(),
     availableTime: Joi.array().required(),
     availableDays: Joi.array().required(),
