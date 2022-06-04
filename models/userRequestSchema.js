@@ -86,14 +86,15 @@ const userRequestSchema = new mongoose.Schema({
   }
 });
 
+userRequestSchema.set('timestamps',true);
 const UserRequest = mongoose.model("UserRequests", userRequestSchema);
 
 function validateUserRequest(name) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
     userID: Joi.objectId().required(),
-    staffMemberID: Joi.objectId().required(),
-    OrganizationID: Joi.objectId().required(),
+    staffMemberID: Joi.objectId(),
+    OrganizationID: Joi.objectId(),
     ServiceNeededTime: Joi.string().required(),
     vaccination: Joi.boolean(),
     // ServiceNeededTo: Joi.string().required(),
@@ -111,6 +112,7 @@ function validateUserRequest(name) {
     reschedule:Joi.boolean(),
     completed:Joi.boolean(),
     canceled:Joi.boolean(),
+    
   });
   return schema.validate(name);
 }

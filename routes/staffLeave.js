@@ -75,7 +75,9 @@ router.post("/", async (req, res) => {
     leaveFrom: req.body.leave_from,
     leaveTo: req.body.leave_to,
     staff: staff,
-    slotLeave:false
+    slotLeave:false,
+    from:new Date(req.body.leave_from),
+    to:new Date(req.body.leave_to)
   });
 
   try {

@@ -84,14 +84,15 @@ const serviceRequestSchema = new mongoose.Schema({
   }
 });
 
+serviceRequestSchema.set('timestamps',true);
 const ConfirmService = mongoose.model("ConfirmService", serviceRequestSchema);
 
 function validateUserRequest(name) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
     userID: Joi.objectId().required(),
-    staffMemberID: Joi.objectId().required(),
-    OrganizationID: Joi.objectId().required(),
+    staffMemberID: Joi.objectId(),
+    OrganizationID: Joi.objectId(),
 
     vaccination: Joi.boolean(),
     ServiceNeededTime: Joi.string().required(),

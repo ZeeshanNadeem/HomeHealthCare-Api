@@ -9,6 +9,7 @@ const { Organization } = require("../models/organizationSchema");
 const { Service } = require("../models/servicesSchema");
 const { ServiceIndependent } = require("../models/IndependentServicesSchema");
 const { User } = require("../models/userSchema");
+const {StaffLeave}=require("../models/leaveSchema");
 
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -166,7 +167,9 @@ router.post("/", async (req, res) => {
     } catch (ex) {
       return res.status(400).send(ex.details[0].message);
     }
-  } else {
+  } 
+  
+  else {
     const { error } = validateUserRequest(req.body);
 
     if (error) {

@@ -421,8 +421,8 @@ router.put("/:id", async (req, res) => {
 
   const qualification = await Qualification.findById(req.body.qualificationID);
 
-  const service = await Service.findById(req.body.serviceID);
-  if (!service) return res.status(400).send("Service Type doesn't exist");
+  // const service = await Service.findById(req.body.serviceID);
+  // if (!service) return res.status(400).send("Service Type doesn't exist");
 
   if (!qualification)
     return res.status(400).send("The qualification doesn't exist");
@@ -432,11 +432,7 @@ router.put("/:id", async (req, res) => {
     {
       fullName: req.body.fullName,
       dateOfBirth: req.body.dateOfBirth,
-      staffSpeciality: {
-        _id: service._id,
-        name: service.serviceName,
-        servicePrice: service.servicePrice,
-      },
+      staffSpeciality:req.body.serviceID,
       qualification: qualification,
 
       // availabilityFrom: req.body.availabilityFrom,

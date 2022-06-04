@@ -23,9 +23,15 @@ const leaveSchema = new mongoose.Schema({
   slotLeave:{
     type:Boolean,
 
+  },
+  from:{
+type:String
+  },
+  to:{
+ type:String
   }
 });
-
+leaveSchema.set('timestamps',true);
 const StaffLeave = mongoose.model("StaffLeave", leaveSchema);
 
 function validateStaffLeave(name) {
@@ -33,7 +39,9 @@ function validateStaffLeave(name) {
     leave_from: Joi.string().required(),
     leave_to: Joi.string().required(),
     staffID: Joi.objectId().required(),
-    slots:Joi.array()
+    slots:Joi.array(),
+    form:Joi.string(),
+    to:Joi.string()
   });
   return schema.validate(name);
 }
