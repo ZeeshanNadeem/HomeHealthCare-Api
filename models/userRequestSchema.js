@@ -112,6 +112,7 @@ function validateUserRequest(name) {
     reschedule:Joi.boolean(),
     completed:Joi.boolean(),
     canceled:Joi.boolean(),
+    days:Joi.string()
     
   });
   return schema.validate(name);

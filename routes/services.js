@@ -22,7 +22,16 @@ router.get("/", paginatedResults(Service), async (req, res) => {
  else if(req.query.UniqueService){
   const services = await Service.distinct("serviceName");
   res.send(services);
- }  
+ } 
+ //Getting Service Chosen Cost on Repeated Service
+ else if(req.query.getServiceCost){
+   let services=null;
+     services=await Service.find({serviceName:req.query.service,"serviceOrgranization._id":req.query.organizationID})
+    if(!services){
+      services=await ServiceIndependent.find({serviceName:req.query.service,"serviceOrgranization._id":req.query.organizationID})
+    }
+    res.send(services[0].servicePrice)
+ }
   else if (req.query.IndependentServiceID) {
     const services = await Service.find({
       "IndependentService._id": req.query.IndependentServiceID,
