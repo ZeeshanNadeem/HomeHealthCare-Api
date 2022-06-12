@@ -222,9 +222,9 @@ router.post("/", upload.single("CV"), async (req, res) => {
   if (req.body.isAppAdmin) {
     user.isAppAdmin = req.body.isAppAdmin;
   }
-  if (req.body.city) {
-    user.city = req.body.city;
-  }
+  // if (req.body.city) {
+  //   user.city = req.body.city;
+  // }
   if (req.file) {
     user.ResumePath = req.file.path;
 

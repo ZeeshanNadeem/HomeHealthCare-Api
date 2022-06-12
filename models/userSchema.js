@@ -78,9 +78,9 @@ const userSchema = new mongoose.Schema({
   services: {
     Type: String,
   },
-  city: {
-    type: String,
-  },
+  // city: {
+  //   type: String,
+  // },
  locations: {
   type:[Object]
   },
@@ -157,7 +157,7 @@ function validateUser(user) {
   const schema = Joi.object({
     fullName: Joi.string().required(),
     dateOfBirth: Joi.string(),
-    city: Joi.string(),
+    // city: Joi.string(),
     email: Joi.string().min(5).max(255).required().email(),
     password: Joi.string().min(5).max(255).required(),
     isAppAdmin: Joi.boolean(),
