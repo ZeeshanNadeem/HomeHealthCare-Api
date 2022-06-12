@@ -60,6 +60,36 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  if(req.query.updateServicesIndependent){
+    await Service.remove({"user._id":req.body.userID});
+    const organization = await Organization.findById(
+      req.body.serviceOrgranizationID
+    );
+    let res_=[]
+    for(let s of req.body.services){
+      const service = new Service({
+        serviceName: s.serviceName,
+        
+        serviceOrgranization: organization,
+        servicePrice: s.servicePrice,
+      });
+  
+      const user = await User.findById(req.body.userID);
+      service.user = user;
+  
+      try {
+        const serviceSaved = await service.save();
+        res_.push(serviceSaved)
+        // res.send(serviceSaved);
+      } catch (ex) {
+        return res.status(400).send(ex.details[0].message);
+      }
+    }
+    res.send(res_)
+  }
+  
+  
+else{
   const { error } = validateService(req.body);
   if (error) {
     return res.status(400).send(error.details[0].message);
@@ -71,6 +101,7 @@ router.post("/", async (req, res) => {
 
   if (!organization)
     return res.status(400).send("Organization Type doesn't exist");
+/////////
 
   if (req.body.userID) {
     const serviceGot = await ServiceIndependent.findById(req.body.serviceID);
@@ -82,7 +113,7 @@ router.post("/", async (req, res) => {
       for(let s of services){
     const service = new Service({
       serviceName: s.serviceName,
-      IndependentService: serviceGot,
+      
       serviceOrgranization: organization,
       servicePrice: s.servicePrice,
     });
@@ -113,6 +144,7 @@ router.post("/", async (req, res) => {
       return res.status(400).send(ex.details[0].message);
     }
   }
+}
 });
 
 router.patch("/", async (req, res) => {
@@ -135,6 +167,7 @@ router.patch("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
+ 
   const { error } = validateService(req.body);
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
@@ -165,6 +198,7 @@ router.put("/:id", async (req, res) => {
     return res.status(404).send("Service with the given ID was not found.");
 
   res.send(service);
+
 });
 
 function paginatedResults(model) {
