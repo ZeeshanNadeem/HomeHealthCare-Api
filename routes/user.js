@@ -68,7 +68,6 @@ router.get("/me", auth, async (req, res) => {
   res.send(user);
 });
 
-
 router.put("/:id", async (req, res) => {
   // const { error } = validateService(requestBody);
 
@@ -114,32 +113,29 @@ router.put("/:id", async (req, res) => {
       }
     );
     res.send(user);
-  } 
-  //updating patients lat lng
-  else if(req.query.updatePatientLocation){
-    if (!mongoose.Types.ObjectId.isValid(req.params.id))
-    return res
-      .status(400)
-      .send("user with the given ID was not found. ");
-
-      const user = await User.findByIdAndUpdate(
-        req.params.id,
-        {
-          lat: req.body.lat,
-          lng:req.body.lng
-        },
-        {
-          new: true,
-        }
-      );
-  
-      if (!user)
-        return res
-          .status(404)
-          .send("Organization with the given ID was not found.");
-      res.send(user);
   }
-  else {
+  //updating patients lat lng
+  else if (req.query.updatePatientLocation) {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).send("user with the given ID was not found. ");
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        lat: req.body.lat,
+        lng: req.body.lng,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!user)
+      return res
+        .status(404)
+        .send("Organization with the given ID was not found.");
+    res.send(user);
+  } else {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
       return res
         .status(400)
@@ -167,22 +163,19 @@ router.put("/:id", async (req, res) => {
 });
 
 router.post("/", upload.single("CV"), async (req, res) => {
+  if (req.query.indepedentServiceProvider) {
+    req.body.locations = JSON.parse(req.body.locations);
+    const { error } = validateUser(req.body);
 
-  if(req.query.indepedentServiceProvider){
-      req.body.locations=JSON.parse(req.body.locations)
-      const { error } = validateUser(req.body);
-  
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-  }
-  else{
-  const { error } = validateUser(req.body);
-  
+    if (error) {
+      return res.status(400).send(error.details[0].message);
+    }
+  } else {
+    const { error } = validateUser(req.body);
 
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
+    if (error) {
+      return res.status(400).send(error.details[0].message);
+    }
   }
 
   let user = await User.findOne({ email: req.body.email });
@@ -210,8 +203,6 @@ router.post("/", upload.single("CV"), async (req, res) => {
   const OrganizationID = req.body.OrganizationID;
   user.temp = req.body.password;
 
- 
-
   if (OrganizationID) {
     const OrganizationObj = await Organization.findById(
       req.body.OrganizationID
@@ -231,21 +222,18 @@ router.post("/", upload.single("CV"), async (req, res) => {
     user.ResumeName = req.file.originalname;
     user.fileType = req.file.mimetype;
   }
-  if(req.body.locations){
-    user.locations=req.body.locations
-
+  if (req.body.locations) {
+    user.locations = req.body.locations;
   }
-  
 
   const staff = await Staff.findById(req.body.staffMemberID);
   if (staff) {
     user.staffMember = staff;
   }
 
-
   user.phone = req.body.phone;
-  user.lat=req.body.lat;
-  user.lng=req.body.lng;
+  user.lat = req.body.lat;
+  user.lng = req.body.lng;
 
   const salt = await bcrypt.genSalt(10);
 
@@ -292,12 +280,13 @@ router.get("/:id", async (req, res) => {
 
 router.patch("/", async (req, res) => {
   if (req.query.staffMemberID) {
+    console.log("patch user:");
     const requests = await User.find({
       "staffMember._id": req.query.staffMemberID,
     });
-
+    let staff = null;
     for (let i = 0; i < requests.length; i++) {
-      const staff = await User.findByIdAndUpdate(
+      staff = await User.findByIdAndUpdate(
         requests[i]._id,
         {
           $set: {
@@ -314,9 +303,8 @@ router.patch("/", async (req, res) => {
         return res
           .status(404)
           .send("Staff Member with the given ID was not found.");
-
-      res.send(staff);
     }
+    res.send(staff);
   } else if (req.query.EditUser) {
     const userGot = await User.findByIdAndUpdate(
       req.body.staffMemberID,

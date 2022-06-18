@@ -9,7 +9,7 @@ const { Organization } = require("../models/organizationSchema");
 const { Service } = require("../models/servicesSchema");
 const { ServiceIndependent } = require("../models/IndependentServicesSchema");
 const { User } = require("../models/userSchema");
-const {StaffLeave}=require("../models/leaveSchema");
+const { StaffLeave } = require("../models/leaveSchema");
 
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -19,46 +19,36 @@ router.get("/", async (req, res) => {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
       // canceled:{$exists:false}
-
     });
     res.send(requests);
-} else if (req.query.staffMemberId && !req.query.showMyDuties) {
+  } else if (req.query.staffMemberId && !req.query.showMyDuties) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
-      completed:{$exists: false},
-      canceled:{$exists:false}
+      completed: { $exists: false },
+      canceled: { $exists: false },
       // reschedule:{$ne:true}
-
     });
     res.send(requests);
-  }
-  else if (req.query.showMyDuties) {
+  } else if (req.query.showMyDuties) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
-      canceled:{$exists:false}
+      canceled: { $exists: false },
       // reschedule:{$ne:true}
-
     });
     res.send(requests);
-  }
-  
-  
-  else if (req.query.vacPlan) {
+  } else if (req.query.vacPlan) {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
       VaccinationPlan: true,
-      
-      // reschedule:{$ne:true}
 
+      // reschedule:{$ne:true}
     });
     res.send(requests);
   } else {
     const requests = await UserRequest.find({
-      
-      completed:{$exists: false},
-      reschedule:{$ne:true},
-      canceled:{$exists:false}
-
+      completed: { $exists: false },
+      reschedule: { $ne: true },
+      canceled: { $exists: false },
     });
     res.send(requests);
   }
@@ -91,9 +81,6 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   if (req.query.postObj) {
-
-    
-    
     const request = new UserRequest({
       fullName: req.body.fullName,
       Email: req.body.Email,
@@ -110,11 +97,10 @@ router.post("/", async (req, res) => {
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
       rated: req.body.rated,
-      lat:req.body.lat,
-      lng:req.body.lng,
-      markers:req.body.markers,
+      lat: req.body.lat,
+      lng: req.body.lng,
+      markers: req.body.markers,
       NotificationViewed: false,
-      
     });
 
     try {
@@ -124,7 +110,7 @@ router.post("/", async (req, res) => {
       return res.status(400).send(ex.details[0].message);
     }
   } else if (req.query.assignDuty) {
-    console.log("req.body:",req.body)
+    console.log("req.body:", req.body);
     const staffMember = await Staff.findById(req.body.staffMemberID);
 
     const user = await User.findById(req.body.userID);
@@ -150,16 +136,15 @@ router.post("/", async (req, res) => {
       Email: req.body.Email,
       Address: req.body.Address,
       PhoneNo: req.body.PhoneNo,
-      markers:req.body.markers,
+      markers: req.body.markers,
       rated: false,
       NotificationViewed: false,
-      lat:req.body.lat,
-      lng:req.body.lng
-  
+      lat: req.body.lat,
+      lng: req.body.lng,
     });
 
-    if(req.body.canceled){
-      request.canceled=req.body.canceled;
+    if (req.body.canceled) {
+      request.canceled = req.body.canceled;
     }
     try {
       const requestSaved = await request.save();
@@ -167,354 +152,406 @@ router.post("/", async (req, res) => {
     } catch (ex) {
       return res.status(400).send(ex.details[0].message);
     }
-  } 
-  else if(req.query.repeated && req.query.servicePlan==="Daily"){
-
+  } else if (req.query.repeated && req.query.servicePlan === "Daily") {
     let staff = await Staff.find({
-      "staffSpeciality": {$elemMatch:{serviceName:req.query.service}},
-      "Organization._id": req.query.organization
-    }).sort({Rating:-1});
-    let meetingsScheduledCount=0;
-    let  response=[];
-    let serviceDate=null
-      for(let s=0;s<staff.length;s++){
-        if(parseInt(meetingsScheduledCount===parseInt(req.body.repeatedMeetingsNo))) break;
-        for(let i=0;i<req.body.repeatedMeetingsNo;i++){
-          if(parseInt(meetingsScheduledCount===parseInt(req.body.repeatedMeetingsNo))) break;
-         
-        if(meetingsScheduledCount===0)
-         serviceDate=new Date(req.body.Schedule);
-         let day = new Date(serviceDate);
+      staffSpeciality: { $elemMatch: { serviceName: req.query.service } },
+      "Organization._id": req.query.organization,
+    }).sort({ Rating: -1 });
+    let meetingsScheduledCount = 0;
+    let response = [];
+    let serviceDate = null;
+    for (let s = 0; s < staff.length; s++) {
+      if (
+        parseInt(
+          meetingsScheduledCount === parseInt(req.body.repeatedMeetingsNo)
+        )
+      )
+        break;
+      for (let i = 0; i < req.body.repeatedMeetingsNo; i++) {
+        if (
+          parseInt(
+            meetingsScheduledCount === parseInt(req.body.repeatedMeetingsNo)
+          )
+        )
+          break;
+
+        if (meetingsScheduledCount === 0)
+          serviceDate = new Date(req.body.Schedule);
+        let day = new Date(serviceDate);
         let d = day.getDay();
-        let weeklyCalculation=null;
-        if (d === 0) {d = "SUN"}
-        else if (d === 1) {d = "MON";weeklyCalculation=2;}
-        else if (d === 2) {d = "TUE";weeklyCalculation=3;}
-        else if (d === 3) {d = "WED";weeklyCalculation=4;}
-        else if (d === 4) {d = "THRU";weeklyCalculation=5;}
-        else if (d === 5) {d = "FRI";weeklyCalculation=6;}
-        else if (d === 6) {d = "SAT";weeklyCalculation=7;}
-  
+        let weeklyCalculation = null;
+        if (d === 0) {
+          d = "SUN";
+        } else if (d === 1) {
+          d = "MON";
+          weeklyCalculation = 2;
+        } else if (d === 2) {
+          d = "TUE";
+          weeklyCalculation = 3;
+        } else if (d === 3) {
+          d = "WED";
+          weeklyCalculation = 4;
+        } else if (d === 4) {
+          d = "THRU";
+          weeklyCalculation = 5;
+        } else if (d === 5) {
+          d = "FRI";
+          weeklyCalculation = 6;
+        } else if (d === 6) {
+          d = "SAT";
+          weeklyCalculation = 7;
+        }
+
         let checkDayAvailability = staff[s].availableDays.some(
           (staff) => staff.name === d && staff.value === true
         );
         if (!checkDayAvailability) continue;
-  
+
         let staffContainsSlot = staff[s].availableTime.some(
-          (staff) => staff.time === req.body.ServiceNeededTime && staff.value === true
+          (staff) =>
+            staff.time === req.body.ServiceNeededTime && staff.value === true
         );
-        if(!staffContainsSlot) continue;
-     
-        const duties= await UserRequest.find({
-          "staffMemberAssigned._id":staff[s]._id,
-          Schedule:serviceDate,
+        if (!staffContainsSlot) continue;
+
+        const duties = await UserRequest.find({
+          "staffMemberAssigned._id": staff[s]._id,
+          Schedule: serviceDate,
           ServiceNeededTime: req.body.ServiceNeededTime,
-          })
-  
-          if(duties && duties.length>0) continue;
-    
-          
-          const leaves=await StaffLeave.find({ from: { $gte: new Date(serviceDate) },
-        "staff._id":staff[s]._id
-        }).and([{to:{$lte:new Date(serviceDate)}}])
-       
-          if(leaves && leaves.length>0 ) continue;
-        
-          const user = await User.findById(req.body.userID);
-      if (!user)
-        return res.status(404).send("The User doesn't exist with the given ID");
-  
+        });
+
+        if (duties && duties.length > 0) continue;
+
+        const leaves = await StaffLeave.find({
+          from: { $gte: new Date(serviceDate) },
+          "staff._id": staff[s]._id,
+        }).and([{ to: { $lte: new Date(serviceDate) } }]);
+
+        if (leaves && leaves.length > 0) continue;
+
+        const user = await User.findById(req.body.userID);
+        if (!user)
+          return res
+            .status(404)
+            .send("The User doesn't exist with the given ID");
+
         const org = await Organization.findById(req.body.OrganizationID);
-      if (!org)
-        return res.status(404).send("Organization doesn't exist");
-  
-       let service=null;
-      service= await Service.find({serviceName:req.query.service,
-      "serviceOrgranization._id":req.query.organization
-      })
-  
-      if(!service){
-        service= await ServiceIndependent.find({serviceName:req.query.service,
-          "serviceOrgranization._id":req.query.organization
-          })
-      }
-  
-      if(!service) res.status(404).send("service doesn't exist");
-      // let day_ = FullDate1.getDate();
-      // let month_ = FullDate1.getMonth() + 1;
-      // const year_ = FullDate1.getFullYear();
-      const request = new UserRequest({
-        fullName: req.body.fullName,
-        Email:req.body.email,
-        user: user,
-        staffMemberAssigned: staff[s],
-        Organization:org,
-        VaccinationPlan: req.body.vaccination,
-        Schedule:serviceDate.getFullYear()+"-"+parseInt(serviceDate.getMonth()+1) +"-"+serviceDate.getDate(),
-        Service: service[0],
-        ServiceNeededTime: req.body.ServiceNeededTime,
-        Address: req.body.Address,
-        PhoneNo: req.body.PhoneNo,
-        rated: false,
-      });
-  
-      try {
-        const requestSaved = await request.save();
-        meetingsScheduledCount++;
-        response.push(requestSaved);
-       
-      } catch (ex) {
-        return res.status(400).send(ex.details[0].message);
-      }
-          if(req.query.servicePlan==="Daily"){
-         
-            serviceDate.setDate(serviceDate.getDate()+1)
-          }
-         
-  
+        if (!org) return res.status(404).send("Organization doesn't exist");
+
+        let service = null;
+        service = await Service.find({
+          serviceName: req.query.service,
+          "serviceOrgranization._id": req.query.organization,
+        });
+
+        if (!service) {
+          service = await ServiceIndependent.find({
+            serviceName: req.query.service,
+            "serviceOrgranization._id": req.query.organization,
+          });
+        }
+
+        if (!service) res.status(404).send("service doesn't exist");
+        // let day_ = FullDate1.getDate();
+        // let month_ = FullDate1.getMonth() + 1;
+        // const year_ = FullDate1.getFullYear();
+        const request = new UserRequest({
+          fullName: req.body.fullName,
+          Email: req.body.email,
+          user: user,
+          staffMemberAssigned: staff[s],
+          Organization: org,
+          VaccinationPlan: req.body.vaccination,
+          Schedule:
+            serviceDate.getFullYear() +
+            "-" +
+            parseInt(serviceDate.getMonth() + 1) +
+            "-" +
+            serviceDate.getDate(),
+          Service: service[0],
+          ServiceNeededTime: req.body.ServiceNeededTime,
+          Address: req.body.Address,
+          PhoneNo: req.body.PhoneNo,
+          rated: false,
+        });
+
+        try {
+          const requestSaved = await request.save();
+          meetingsScheduledCount++;
+          response.push(requestSaved);
+        } catch (ex) {
+          return res.status(400).send(ex.details[0].message);
+        }
+        if (req.query.servicePlan === "Daily") {
+          serviceDate.setDate(serviceDate.getDate() + 1);
+        }
       }
     }
-      res.send(response);
-  }
-  else if(req.query.repeated && req.query.servicePlan==="Weekly"){
-   //Phase 1: frist we schedule start date meeting
-   //Phase 2: Then we schedule repeated weekly meeting
+    res.send(response);
+  } else if (req.query.repeated && req.query.servicePlan === "Weekly") {
+    //Phase 1: frist we schedule start date meeting
+    //Phase 2: Then we schedule repeated weekly meeting
 
-    const startDate=new Date(req.body.Schedule);
-    const daysSelected=req.body.days;
+    const startDate = new Date(req.body.Schedule);
+    const daysSelected = req.body.days;
 
     let staff = await Staff.find({
-      "staffSpeciality": {$elemMatch:{serviceName:req.query.service}},
-      "Organization._id": req.query.organization
-    }).sort({Rating:-1});
-    let totalWeeks=0;
-    let  response=[];
-    let serviceDate=null
+      staffSpeciality: { $elemMatch: { serviceName: req.query.service } },
+      "Organization._id": req.query.organization,
+    }).sort({ Rating: -1 });
+    let totalWeeks = 0;
+    let response = [];
+    let serviceDate = null;
     //Phase 1: frist we schedule start date meeting starts..
-            for(let s=0;s<staff.length;s++){
-              
-                serviceDate=new Date(req.body.Schedule);
-                let day = new Date(serviceDate);
-                let d = day.getDay();
+    for (let s = 0; s < staff.length; s++) {
+      serviceDate = new Date(req.body.Schedule);
+      let day = new Date(serviceDate);
+      let d = day.getDay();
 
-                if (d === 0) {d = "SUN"}
-                else if (d === 1) {d = "MON"}
-                else if (d === 2) {d = "TUE"}
-                else if (d === 3) {d = "WED"}
-                else if (d === 4) {d = "THRU"}
-                else if (d === 5) {d = "FRI"}
-                else if (d === 6) {d = "SAT"}
-              
+      if (d === 0) {
+        d = "SUN";
+      } else if (d === 1) {
+        d = "MON";
+      } else if (d === 2) {
+        d = "TUE";
+      } else if (d === 3) {
+        d = "WED";
+      } else if (d === 4) {
+        d = "THRU";
+      } else if (d === 5) {
+        d = "FRI";
+      } else if (d === 6) {
+        d = "SAT";
+      }
 
-        
-              let checkDayAvailability = staff[s].availableDays.some(
-                (staff) => staff.name === d && staff.value === true
-              );
-              if (!checkDayAvailability) continue;
-        
-              let staffContainsSlot = staff[s].availableTime.some(
-                (staff) => staff.time === req.body.ServiceNeededTime && staff.value === true
-              );
-              if(!staffContainsSlot) continue;
-            
-              const duties= await UserRequest.find({
-                "staffMemberAssigned._id":staff[s]._id,
-                Schedule:serviceDate.getDate() + "-" + parseInt(serviceDate.getMonth() + 1) + "-" + serviceDate.getFullYear(),
-                ServiceNeededTime: req.body.ServiceNeededTime,
-                })
-        
-                if(duties && duties.length>0) continue;
-          
-                
-                const leaves=await StaffLeave.find({ from: { $gte: new Date(serviceDate) },
-              "staff._id":staff[s]._id
-              }).and([{to:{$lte:new Date(serviceDate)}}])
-              
-                if(leaves && leaves.length>0 ) continue;
-              
-                const user = await User.findById(req.body.userID);
-            if (!user)
-              return res.status(404).send("The User doesn't exist with the given ID");
-        
-              const org = await Organization.findById(req.body.OrganizationID);
-            if (!org)
-              return res.status(404).send("Organization doesn't exist");
-        
-              let service=null;
-            service= await Service.find({serviceName:req.query.service,
-            "serviceOrgranization._id":req.query.organization
-            })
-        
-            if(!service){
-              service= await ServiceIndependent.find({serviceName:req.query.service,
-                "serviceOrgranization._id":req.query.organization
-                })
-            }
-        
-            if(!service) res.status(404).send("service doesn't exist");
-            // let day_ = FullDate1.getDate();
-            // let month_ = FullDate1.getMonth() + 1;
-            // const year_ = FullDate1.getFullYear();
-            const request = new UserRequest({
-              fullName: req.body.fullName,
-              Email:req.body.email,
-              user: user,
-              staffMemberAssigned: staff[s],
-              Organization:org,
-              VaccinationPlan: req.body.vaccination,
-              Schedule:serviceDate.getFullYear()+"-"+parseInt(serviceDate.getMonth()+1) +"-"+serviceDate.getDate(),
-              Service: service[0],
-              ServiceNeededTime: req.body.ServiceNeededTime,
-              Address: req.body.Address,
-              PhoneNo: req.body.PhoneNo,
-              rated: false,
-            });
-        
-            try {
-              const requestSaved = await request.save();
-            
-              response.push(requestSaved);
-              break;
-              
-            } catch (ex) {
-              return res.status(400).send(ex.details[0].message);
-            }
-            }
+      let checkDayAvailability = staff[s].availableDays.some(
+        (staff) => staff.name === d && staff.value === true
+      );
+      if (!checkDayAvailability) continue;
 
-     //Phase 1: frist we schedule start date meeting ends..
+      let staffContainsSlot = staff[s].availableTime.some(
+        (staff) =>
+          staff.time === req.body.ServiceNeededTime && staff.value === true
+      );
+      if (!staffContainsSlot) continue;
 
-      for(let s=0;s<staff.length;s++){
-       
+      const duties = await UserRequest.find({
+        "staffMemberAssigned._id": staff[s]._id,
+        Schedule:
+          serviceDate.getDate() +
+          "-" +
+          parseInt(serviceDate.getMonth() + 1) +
+          "-" +
+          serviceDate.getFullYear(),
+        ServiceNeededTime: req.body.ServiceNeededTime,
+      });
 
+      if (duties && duties.length > 0) continue;
 
-      //Phase 2 :starts..
-      
-        for(let i=0;i<req.body.repeatedMeetingsNo;i++){
-          if(parseInt(totalWeeks)===parseInt(req.body.repeatedMeetingsNo)-1) break;
-        for(let days=0;days<req.body.days.length;days++){
-         
-         
-      
-        
-       
-        let weeklyCalculation=null;
+      const leaves = await StaffLeave.find({
+        from: { $gte: new Date(serviceDate) },
+        "staff._id": staff[s]._id,
+      }).and([{ to: { $lte: new Date(serviceDate) } }]);
 
-        if (daysSelected[days].value === "MON") {weeklyCalculation=1;}
-        else if (daysSelected[days].value === "TUE") {weeklyCalculation=2;}
-        else if (daysSelected[days].value === "WED") {weeklyCalculation=3;}
-        else if (daysSelected[days].value === "THU") {weeklyCalculation=4;}
-        else if (daysSelected[days].value === "FRI") {weeklyCalculation=5;}
-        else if (daysSelected[days].value === "SAT") {weeklyCalculation=6;}
-        else if (daysSelected[days].value === "SUN") {weeklyCalculation=7;}
+      if (leaves && leaves.length > 0) continue;
 
-        //if(days===0)
-        
-        serviceDate.setDate(serviceDate.getDate() + (((weeklyCalculation + 7 - serviceDate.getDay()) % 7) || 7));
-        // else
-         //serviceDate.setDate(serviceDate.getDate() + (((weeklyCalculation + 7 - serviceDate.getDay()) % 7) || 7));
-         
-         let day = new Date(serviceDate);
-         let d = day.getDay();
-
-         
-         
-
-         if (d === 0) {d = "SUN"}
-         else if (d === 1) {d = "MON"}
-         else if (d === 2) {d = "TUE"}
-         else if (d === 3) {d = "WED"}
-         else if (d === 4) {d = "THRU"}
-         else if (d === 5) {d = "FRI"}
-         else if (d === 6) {d = "SAT"}
-
-
-        let checkDayAvailability = staff[s].availableDays.some(
-          (staff) => staff.name === d && staff.value === true
-        );
-        if (!checkDayAvailability) continue;
-  
-        let staffContainsSlot = staff[s].availableTime.some(
-          (staff) => staff.time === req.body.ServiceNeededTime && staff.value === true
-        );
-        if(!staffContainsSlot) continue;
-     
-
-        
-
-
-        const duties= await UserRequest.find({
-          "staffMemberAssigned._id":staff[s]._id.toString(),
-          Schedule:serviceDate.getFullYear()+"-"+ parseInt(serviceDate.getMonth() + 1) +"-"+serviceDate.getDate(),
-          ServiceNeededTime: req.body.ServiceNeededTime,
-          })
-  
-          if(duties && duties.length>0) continue;
-    
-          
-          const leaves=await StaffLeave.find({ from: { $gte: new Date(serviceDate) },
-        "staff._id":staff[s]._id
-        }).and([{to:{$lte:new Date(serviceDate)}}])
-       
-          if(leaves && leaves.length>0 ) continue;
-        
-          const user = await User.findById(req.body.userID);
+      const user = await User.findById(req.body.userID);
       if (!user)
         return res.status(404).send("The User doesn't exist with the given ID");
-  
-        const org = await Organization.findById(req.body.OrganizationID);
-      if (!org)
-        return res.status(404).send("Organization doesn't exist");
-  
-       let service=null;
-      service= await Service.find({serviceName:req.query.service,
-      "serviceOrgranization._id":req.query.organization
-      })
-  
-      if(!service){
-        service= await ServiceIndependent.find({serviceName:req.query.service,
-          "serviceOrgranization._id":req.query.organization
-          })
+
+      const org = await Organization.findById(req.body.OrganizationID);
+      if (!org) return res.status(404).send("Organization doesn't exist");
+
+      let service = null;
+      service = await Service.find({
+        serviceName: req.query.service,
+        "serviceOrgranization._id": req.query.organization,
+      });
+
+      if (!service) {
+        service = await ServiceIndependent.find({
+          serviceName: req.query.service,
+          "serviceOrgranization._id": req.query.organization,
+        });
       }
-  
-      if(!service) res.status(404).send("service doesn't exist");
+
+      if (!service) res.status(404).send("service doesn't exist");
       // let day_ = FullDate1.getDate();
       // let month_ = FullDate1.getMonth() + 1;
       // const year_ = FullDate1.getFullYear();
       const request = new UserRequest({
         fullName: req.body.fullName,
-        Email:req.body.email,
+        Email: req.body.email,
         user: user,
         staffMemberAssigned: staff[s],
-        Organization:org,
+        Organization: org,
         VaccinationPlan: req.body.vaccination,
-        Schedule:serviceDate.getFullYear()+"-"+parseInt(serviceDate.getMonth()+1) +"-"+serviceDate.getDate(),
+        Schedule:
+          serviceDate.getFullYear() +
+          "-" +
+          parseInt(serviceDate.getMonth() + 1) +
+          "-" +
+          serviceDate.getDate(),
         Service: service[0],
         ServiceNeededTime: req.body.ServiceNeededTime,
         Address: req.body.Address,
         PhoneNo: req.body.PhoneNo,
         rated: false,
       });
-  
+
       try {
         const requestSaved = await request.save();
-        if(days===req.body.days.length-1)
-        totalWeeks++;
+
         response.push(requestSaved);
-       
+        break;
       } catch (ex) {
         return res.status(400).send(ex.details[0].message);
       }
-         
-            
-        
-         
-  
+    }
+
+    //Phase 1: frist we schedule start date meeting ends..
+
+    for (let s = 0; s < staff.length; s++) {
+      //Phase 2 :starts..
+
+      for (let i = 0; i < req.body.repeatedMeetingsNo; i++) {
+        if (parseInt(totalWeeks) === parseInt(req.body.repeatedMeetingsNo) - 1)
+          break;
+        for (let days = 0; days < req.body.days.length; days++) {
+          let weeklyCalculation = null;
+
+          if (daysSelected[days].value === "MON") {
+            weeklyCalculation = 1;
+          } else if (daysSelected[days].value === "TUE") {
+            weeklyCalculation = 2;
+          } else if (daysSelected[days].value === "WED") {
+            weeklyCalculation = 3;
+          } else if (daysSelected[days].value === "THU") {
+            weeklyCalculation = 4;
+          } else if (daysSelected[days].value === "FRI") {
+            weeklyCalculation = 5;
+          } else if (daysSelected[days].value === "SAT") {
+            weeklyCalculation = 6;
+          } else if (daysSelected[days].value === "SUN") {
+            weeklyCalculation = 7;
+          }
+
+          //if(days===0)
+
+          serviceDate.setDate(
+            serviceDate.getDate() +
+              ((weeklyCalculation + 7 - serviceDate.getDay()) % 7 || 7)
+          );
+          // else
+          //serviceDate.setDate(serviceDate.getDate() + (((weeklyCalculation + 7 - serviceDate.getDay()) % 7) || 7));
+
+          let day = new Date(serviceDate);
+          let d = day.getDay();
+
+          if (d === 0) {
+            d = "SUN";
+          } else if (d === 1) {
+            d = "MON";
+          } else if (d === 2) {
+            d = "TUE";
+          } else if (d === 3) {
+            d = "WED";
+          } else if (d === 4) {
+            d = "THRU";
+          } else if (d === 5) {
+            d = "FRI";
+          } else if (d === 6) {
+            d = "SAT";
+          }
+
+          let checkDayAvailability = staff[s].availableDays.some(
+            (staff) => staff.name === d && staff.value === true
+          );
+          if (!checkDayAvailability) continue;
+
+          let staffContainsSlot = staff[s].availableTime.some(
+            (staff) =>
+              staff.time === req.body.ServiceNeededTime && staff.value === true
+          );
+          if (!staffContainsSlot) continue;
+
+          const duties = await UserRequest.find({
+            "staffMemberAssigned._id": staff[s]._id.toString(),
+            Schedule:
+              serviceDate.getFullYear() +
+              "-" +
+              parseInt(serviceDate.getMonth() + 1) +
+              "-" +
+              serviceDate.getDate(),
+            ServiceNeededTime: req.body.ServiceNeededTime,
+          });
+
+          if (duties && duties.length > 0) continue;
+
+          const leaves = await StaffLeave.find({
+            from: { $gte: new Date(serviceDate) },
+            "staff._id": staff[s]._id,
+          }).and([{ to: { $lte: new Date(serviceDate) } }]);
+
+          if (leaves && leaves.length > 0) continue;
+
+          const user = await User.findById(req.body.userID);
+          if (!user)
+            return res
+              .status(404)
+              .send("The User doesn't exist with the given ID");
+
+          const org = await Organization.findById(req.body.OrganizationID);
+          if (!org) return res.status(404).send("Organization doesn't exist");
+
+          let service = null;
+          service = await Service.find({
+            serviceName: req.query.service,
+            "serviceOrgranization._id": req.query.organization,
+          });
+
+          if (!service) {
+            service = await ServiceIndependent.find({
+              serviceName: req.query.service,
+              "serviceOrgranization._id": req.query.organization,
+            });
+          }
+
+          if (!service) res.status(404).send("service doesn't exist");
+          // let day_ = FullDate1.getDate();
+          // let month_ = FullDate1.getMonth() + 1;
+          // const year_ = FullDate1.getFullYear();
+          const request = new UserRequest({
+            fullName: req.body.fullName,
+            Email: req.body.email,
+            user: user,
+            staffMemberAssigned: staff[s],
+            Organization: org,
+            VaccinationPlan: req.body.vaccination,
+            Schedule:
+              serviceDate.getFullYear() +
+              "-" +
+              parseInt(serviceDate.getMonth() + 1) +
+              "-" +
+              serviceDate.getDate(),
+            Service: service[0],
+            ServiceNeededTime: req.body.ServiceNeededTime,
+            Address: req.body.Address,
+            PhoneNo: req.body.PhoneNo,
+            rated: false,
+          });
+
+          try {
+            const requestSaved = await request.save();
+            if (days === req.body.days.length - 1) totalWeeks++;
+            response.push(requestSaved);
+          } catch (ex) {
+            return res.status(400).send(ex.details[0].message);
+          }
+        }
       }
     }
-    }
-      res.send(response);
-  }
-  else {
+    res.send(response);
+  } else {
     const { error } = validateUserRequest(req.body);
 
     if (error) {
@@ -572,10 +609,8 @@ router.post("/", async (req, res) => {
       City: req.body.city,
       rated: false,
       NotificationViewed: false,
-      lat:req.body.lat,
-      lng:req.body.lng
-    
-     
+      lat: req.body.lat,
+      lng: req.body.lng,
     });
 
     try {
@@ -596,77 +631,72 @@ router.put("/:id", async (req, res) => {
   //   return res.status(400).send(error.details[0].message);
   // }
 
-  if(req.body.canceled){
-    
+  if (req.body.canceled) {
     const request = await UserRequest.findByIdAndUpdate(
       req.params.id,
       {
-        canceled:req.query.status
+        canceled: req.query.status,
       },
       {
         new: true,
       }
     );
-  
+
     if (!request)
       return res.status(404).send("Request with the given ID was not found.");
-  
+
+    res.send(request);
+  } else {
+    const staffMember = await Staff.findById(req.body.staffMemberID);
+    if (!staffMember)
+      return res
+        .status(404)
+        .send("Staff Member doesn't exist not found with the given ID");
+
+    const organization = await Organization.findById(req.body.OrganizationID);
+    if (!organization)
+      return res
+        .status(400)
+        .send("Organization with the given ID doesn't exist");
+
+    const service = await Service.findById(req.body.ServiceID);
+    if (!service)
+      return res.status(400).send("Service with the given ID doesn't exist");
+
+    const request = await UserRequest.findByIdAndUpdate(
+      req.params.id,
+      {
+        fullName: req.body.fullName,
+        Email: req.body.Email,
+
+        staffMemberAssigned: req.body.staffMemberAssigned,
+        VaccinationPlan: req.body.vaccination,
+        Organization: req.body.Organization,
+        Schedule: req.body.Schedule,
+        Service: req.body.Service,
+        ServiceNeededTime: req.body.ServiceNeededTime,
+        // ServiceNeededTo: req.body.ServiceNeededTo,
+        City: req.body.City,
+        // Recursive: req.body.Recursive,
+        Address: req.body.Address,
+        PhoneNo: req.body.PhoneNo,
+        rated: req.body.rated,
+        lat: req.body.lat,
+        lng: req.body.lng,
+        markers: req.body.markers,
+        NotificationViewed: false,
+        reschedule: false,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!request)
+      return res.status(404).send("Request with the given ID was not found.");
+
     res.send(request);
   }
-
-  else{
-  const staffMember = await Staff.findById(req.body.staffMemberID);
-  if (!staffMember)
-    return res
-      .status(404)
-      .send("Staff Member doesn't exist not found with the given ID");
-
-  const organization = await Organization.findById(req.body.OrganizationID);
-  if (!organization)
-    return res.status(400).send("Organization with the given ID doesn't exist");
-
-  const service = await Service.findById(req.body.ServiceID);
-  if (!service)
-    return res.status(400).send("Service with the given ID doesn't exist");
-
- 
-  
-
-  
-  const request = await UserRequest.findByIdAndUpdate(
-    req.params.id,
-    {
-      fullName: req.body.fullName,
-      Email: req.body.Email,
- 
-      staffMemberAssigned: req.body.staffMemberAssigned,
-      VaccinationPlan: req.body.vaccination,
-      Organization: req.body.Organization,
-      Schedule: req.body.Schedule,
-      Service: req.body.Service,
-      ServiceNeededTime: req.body.ServiceNeededTime,
-      // ServiceNeededTo: req.body.ServiceNeededTo,
-      City: req.body.City,
-      // Recursive: req.body.Recursive,
-      Address: req.body.Address,
-      PhoneNo: req.body.PhoneNo,
-      rated: req.body.rated,
-      lat:req.body.lat,
-      lng:req.body.lng,
-      markers:req.body.markers,
-      NotificationViewed: false,
-      reschedule:false
-    },
-    {
-      new: true,
-    }
-  );
-
-  if (!request)
-    return res.status(404).send("Request with the given ID was not found.");
-
-  res.send(request);
-}
 });
 
 router.patch("/", async (req, res) => {
@@ -694,9 +724,8 @@ router.patch("/", async (req, res) => {
         return res
           .status(404)
           .send("User Request with the given ID was not found.");
-
-      res.send(userRequest);
     }
+    res.send("userRequest updated");
   } else if (req.query.notification) {
     const userRequest = await UserRequest.findByIdAndUpdate(
       req.query.userReqID,
@@ -721,50 +750,45 @@ router.patch("/", async (req, res) => {
       "user._id": req.query.getPatientAppointmentsID,
     });
     res.send(appointments);
-  }
- else if(req.query.rescheduleAppointment){
-
+  } else if (req.query.rescheduleAppointment) {
     const request = await UserRequest.findByIdAndUpdate(
       req.query.id,
       {
-        reschedule:req.body.status
+        reschedule: req.body.status,
       },
       {
         new: true,
       }
     );
-  
+
     if (!request)
       return res.status(404).send("Request with the given ID was not found.");
-  
-    res.send(request);
-  }
 
-  else if(req.query.rescheduleFalse){
+    res.send(request);
+  } else if (req.query.rescheduleFalse) {
     const requests = await UserRequest.updateMany(
-     {},{reschedule:req.body.status}
+      {},
+      { reschedule: req.body.status }
     );
-  
+
     if (!requests)
       return res.status(404).send("Request with the given ID was not found.");
 
     res.send(requests);
-  
-  }
-  else if(req.query.serviceCompleted){
+  } else if (req.query.serviceCompleted) {
     const request = await UserRequest.findByIdAndUpdate(
       req.query.id,
       {
-        completed:req.body.completeStatus
+        completed: req.body.completeStatus,
       },
       {
         new: true,
       }
     );
-  
+
     if (!request)
       return res.status(404).send("Request with the given ID was not found.");
-  
+
     res.send(request);
   }
 });
