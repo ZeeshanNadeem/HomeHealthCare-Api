@@ -1,5 +1,5 @@
 const express = require("express");
-// 
+//
 const { Staff } = require("../models/staffSchema");
 const {
   ConfirmService,
@@ -13,8 +13,8 @@ const { User } = require("../models/userSchema");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-var UserRequest = mongoose.model('UserRequests') 
-const {StaffLeave}=require("../models/leaveSchema");
+var UserRequest = mongoose.model("UserRequests");
+const { StaffLeave } = require("../models/leaveSchema");
 const { parseInt } = require("lodash");
 
 router.get("/", async (req, res) => {
@@ -62,7 +62,6 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   if (req.query.assignDuty) {
-
     const staffMember = await Staff.findById(req.body.staffMemberID);
 
     const user = await User.findById(req.body.userID);
@@ -85,9 +84,9 @@ router.post("/", async (req, res) => {
       // ServiceNeededTo: req.body.ServiceNeededTo,
       // Recursive: req.body.Recursive,
       Address: req.body.Address,
-      lat:req.body.lat,
-      lng:req.body.lng,
-     
+      lat: req.body.lat,
+      lng: req.body.lng,
+
       PhoneNo: req.body.PhoneNo,
 
       rated: false,
@@ -99,10 +98,8 @@ router.post("/", async (req, res) => {
     } catch (ex) {
       return res.status(400).send(ex.details[0].message);
     }
-  }
- 
-  else {
-    //Here 
+  } else {
+    //Here
     const { error } = validateUserRequest(req.body);
 
     if (error) {
@@ -123,16 +120,18 @@ router.post("/", async (req, res) => {
 
     let service = null;
     // service = await Service.findById(req.body.ServiceID);
-    service=await Service.find({"serviceOrgranization.name":organization.name,
-    serviceName:req.body.ServiceID
-  })
+    service = await Service.find({
+      "serviceOrgranization.name": organization.name,
+      serviceName: req.body.ServiceID,
+    });
     // if (!service)
     //   return res.status(400).send("Service with the given ID doesn't exist");
 
     if (!service) {
-      
-      service = await ServiceIndependent.find({"serviceOrgranization.name":organization.name,
-      serviceName:req.body.ServiceID})
+      service = await ServiceIndependent.find({
+        "serviceOrgranization.name": organization.name,
+        serviceName: req.body.ServiceID,
+      });
 
       let temp = {};
       if (service) {
@@ -140,7 +139,7 @@ router.post("/", async (req, res) => {
           _id: service._id,
           serviceName: service[0].serviceName,
           serviceOrgranization: service[0].serviceOrganization,
-          servicePrice:service[0].servicePrice
+          servicePrice: service[0].servicePrice,
         };
       }
 
@@ -166,8 +165,8 @@ router.post("/", async (req, res) => {
         Service: temp,
         Schedule: req.body.Schedule,
         ServiceNeededTime: req.body.ServiceNeededTime,
-        lat:req.body.lat,
-        lng:req.body.lng,
+        lat: req.body.lat,
+        lng: req.body.lng,
         // ServiceNeededTo: ServiceNeededTo_,
         // Recursive: req.body.Recursive,
         Address: req.body.Address,
@@ -184,7 +183,6 @@ router.post("/", async (req, res) => {
         return res.status(400).send(ex.details[0].message);
       }
     } else {
-     
       const user = await User.findById(req.body.userID);
       if (!user)
         return res.status(404).send("The User doesn't exist with the given ID");
@@ -192,12 +190,12 @@ router.post("/", async (req, res) => {
       // const myArray = req.body.ServiceNeededFrom.split(":");
       // const sum = parseInt(myArray[0]) + 3;
       // const ServiceNeededTo_ = sum + ":00";
-     const temp={
-      _id:service[0]._id,
-      serviceName:service[0].serviceName,
-      serviceOrgranization:service[0].serviceOrgranization,
-      servicePrice:service[0].servicePrice
-     }
+      const temp = {
+        _id: service[0]._id,
+        serviceName: service[0].serviceName,
+        serviceOrgranization: service[0].serviceOrgranization,
+        servicePrice: service[0].servicePrice,
+      };
       const request = new ConfirmService({
         fullName: req.body.fullName,
         user: user,
@@ -214,12 +212,12 @@ router.post("/", async (req, res) => {
         rated: false,
         Email: req.body.email,
         City: req.body.city,
-        lat:req.body.lat,
-        lng:req.body.lng,
-        markers:req.body.markers,
+        lat: req.body.lat,
+        lng: req.body.lng,
+        // markers:req.body.markers,
         totalMeetingsRequested: req.body.totalMeetingsRequested,
       });
-     
+
       try {
         const requestSaved = await request.save();
         res.send(requestSaved);

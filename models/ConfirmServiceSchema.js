@@ -57,7 +57,6 @@ const serviceRequestSchema = new mongoose.Schema({
   },
   City: {
     type: String,
-    
   },
   Email: {
     type: String,
@@ -73,18 +72,18 @@ const serviceRequestSchema = new mongoose.Schema({
   totalMeetingsRequested: {
     type: Number,
   },
-  lat:{
-    type:String
+  lat: {
+    type: String,
   },
-  lng:{
-    type:String
+  lng: {
+    type: String,
   },
-  markers:{
-    type:[Object]
-  }
+  markers: {
+    type: [Object],
+  },
 });
 
-serviceRequestSchema.set('timestamps',true);
+serviceRequestSchema.set("timestamps", true);
 const ConfirmService = mongoose.model("ConfirmService", serviceRequestSchema);
 
 function validateUserRequest(name) {
@@ -104,9 +103,9 @@ function validateUserRequest(name) {
     email: Joi.string().min(5).max(255).required().email(),
     city: Joi.string(),
     totalMeetingsRequested: Joi.number(),
-    lat:Joi.string(),
-    lng:Joi.string(),
-    markers:Joi.array()
+    lat: Joi.string(),
+    lng: Joi.string(),
+    // markers:Joi.array()
   });
   return schema.validate(name);
 }
