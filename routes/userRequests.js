@@ -162,18 +162,19 @@ router.post("/", async (req, res) => {
     let serviceDate = null;
     for (let s = 0; s < staff.length; s++) {
       if (
-        parseInt(
-          meetingsScheduledCount === parseInt(req.body.repeatedMeetingsNo)
-        )
-      )
+        parseInt(meetingsScheduledCount) ===
+        parseInt(req.body.repeatedMeetingsNo)
+      ) {
         break;
+      }
+
       for (let i = 0; i < req.body.repeatedMeetingsNo; i++) {
         if (
-          parseInt(
-            meetingsScheduledCount === parseInt(req.body.repeatedMeetingsNo)
-          )
-        )
+          parseInt(meetingsScheduledCount) ===
+          parseInt(req.body.repeatedMeetingsNo)
+        ) {
           break;
+        }
 
         if (meetingsScheduledCount === 0)
           serviceDate = new Date(req.body.Schedule);
