@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
     const requests = await UserRequest.find({
       "user._id": req.query.userID,
       // canceled:{$exists:false}
-    });
+    }).sort({ Schedule: 1 });
     res.send(requests);
   } else if (req.query.staffMemberId && !req.query.showMyDuties) {
     const requests = await UserRequest.find({
@@ -32,7 +32,8 @@ router.get("/", async (req, res) => {
   } else if (req.query.showMyDuties) {
     const requests = await UserRequest.find({
       "staffMemberAssigned._id": req.query.staffMemberId,
-      canceled: { $exists: false },
+      // canceled: { $exists: false },
+
       // reschedule:{$ne:true}
     });
     res.send(requests);
@@ -932,6 +933,30 @@ router.patch("/", async (req, res) => {
       return res.status(404).send("Request with the given ID was not found.");
 
     res.send(request);
+  } else if (req.query.cancelService) {
+    const userRequest = await UserRequest.findByIdAndUpdate(
+      req.query.userRequestID,
+      {
+        $set: {
+          canceled: true,
+          // "staffMemberAssigned.Rating": req.body.Rating,
+          // "staffMemberAssigned.RatingAvgCount": req.body.RatingAvgCount,
+          // rated: true,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!userRequest)
+      return res
+        .status(404)
+        .send("User Request with the given ID was not found.");
+    else {
+      const reqs = await UserRequest.find({});
+      res.send(reqs);
+    }
   }
 });
 module.exports = router;
